@@ -11,7 +11,21 @@ def rect_filled(cx, cy, width, height, color):
         right = cx + width / 2
         top = cy + height / 2
         bottom = cy - height / 2
-        return arcade.draw_lrtb_rectangle_filled(left, right, top, bottom, color)
+        # Try lrtb helper if present
+        try:
+            return arcade.draw_lrtb_rectangle_filled(left, right, top, bottom, color)
+        except AttributeError:
+            # Try polygon fill
+            points = [(left, bottom), (left, top), (right, top), (right, bottom)]
+            try:
+                return arcade.draw_polygon_filled(points, color)
+            except AttributeError:
+                # Final fallback: two triangles
+                try:
+                    arcade.draw_triangle_filled(left, bottom, left, top, right, top, color)
+                    arcade.draw_triangle_filled(left, bottom, right, top, right, bottom, color)
+                except Exception:
+                    pass
 
 def rect_outline(cx, cy, width, height, color, border_width=1):
     try:
@@ -21,7 +35,23 @@ def rect_outline(cx, cy, width, height, color, border_width=1):
         right = cx + width / 2
         top = cy + height / 2
         bottom = cy - height / 2
-        return arcade.draw_lrtb_rectangle_outline(left, right, top, bottom, color, border_width)
+        # Try lrtb outline helper
+        try:
+            return arcade.draw_lrtb_rectangle_outline(left, right, top, bottom, color, border_width)
+        except AttributeError:
+            points = [(left, bottom), (left, top), (right, top), (right, bottom)]
+            # Try polygon outline
+            try:
+                return arcade.draw_polygon_outline(points, color)
+            except AttributeError:
+                # Final fallback: draw four lines
+                try:
+                    arcade.draw_line(left, bottom, left, top, color, border_width)
+                    arcade.draw_line(left, top, right, top, color, border_width)
+                    arcade.draw_line(right, top, right, bottom, color, border_width)
+                    arcade.draw_line(right, bottom, left, bottom, color, border_width)
+                except Exception:
+                    pass
 
 # Game constants
 SCREEN_WIDTH = 800
