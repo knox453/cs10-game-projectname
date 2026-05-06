@@ -47,7 +47,7 @@ def rect_outline(cx, cy, width, height, color, border_width=1):
 +        rect_filled(400, 50, 800, 100, arcade.color.BLACK_OLIVE)
 
         # --- 2. Draw UI / Patience Bar ---
-    arcade.draw_text("Patience:", 20, 560, arcade.color.BLACK, 14)
+        arcade.draw_text("Patience:", 20, 560, arcade.color.BLACK, 14)
         bar_width = (self.patience / self.max_patience) * 200
         if bar_width > 0:
             rect_filled(80 + bar_width / 2, 570, bar_width, 20, arcade.color.CRIMSON)
