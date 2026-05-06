@@ -29,38 +29,47 @@ class MyGame(arcade.Window):
         arcade.set_background_color(arcade.color.SKY_BLUE)
 
     def on_draw(self):
-        arcade.start_render()
+        self.clear() # In 3.0, use self.clear() instead of arcade.start_render()
 
-    # --- 1. Draw the Background (Based on your sketches) ---
+        # --- 1. Draw the Background (Updated Names) ---
         # School building
-        arcade.draw_rectangle_filled(600, 400, 300, 400, arcade.color.GRAY)
-        arcade.draw_triangle_filled(450, 600, 750, 600, 600, 700, arcade.color.DARK_RED)
+        arcade.draw_rect_filled(
+            arcade.rect.Rect(450, 200, 300, 400), # x, y, width, height
+            arcade.color.GRAY
+        )
 
         # Road
-        arcade.draw_rectangle_filled(400, 50, 800, 100, arcade.color.BLACK_OLIVE)
+        arcade.draw_rect_filled(
+            arcade.rect.Rect(0, 0, 800, 100),
+            arcade.color.BLACK_OLIVE
+        )
 
-    # --- 2. Draw UI / Patience Bar ---
-        arcade.draw_text(f"Patience:", 20, 560, arcade.color.BLACK, 14)
-        # Background of bar
-        arcade.draw_rectangle_outline(180, 570, 200, 20, arcade.color.BLACK, 2)
+        # --- 2. Draw UI / Patience Bar ---
+        arcade.draw_text("Patience:", 20, 560, arcade.color.BLACK, 14)
+
         # Filling the bar
         bar_width = (self.patience / self.max_patience) * 200
         if bar_width > 0:
-            arcade.draw_rectangle_filled(80 + (bar_width / 2), 570, bar_width, 16, arcade.color.CRIMSON)
+            arcade.draw_rect_filled(
+                arcade.rect.Rect(80, 560, bar_width, 20),
+                arcade.color.CRIMSON
+            )
 
-    # --- 3. Draw Conversation Box ---
+        # --- 3. Draw Conversation Box ---
         if self.state == STATE_CONVERSATION:
             # Dialogue box
-            arcade.draw_rectangle_filled(400, 150, 760, 150, arcade.color.WHITE_SMOKE)
-            arcade.draw_rectangle_outline(400, 150, 760, 150, arcade.color.BLACK, 3)
+            arcade.draw_rect_filled(
+                arcade.rect.Rect(20, 20, 760, 150),
+                arcade.color.WHITE_SMOKE
+            )
 
             # NPC Name and Text
-            arcade.draw_text(f"{self.current_npc}:", 40, 200, arcade.color.DARK_BLUE_GRAY, 16, bold=True)
-            arcade.draw_text(self.dialogue_text, 40, 175, arcade.color.BLACK, 14)
+            arcade.draw_text(f"{self.current_npc}:", 40, 140, arcade.color.DARK_BLUE_GRAY, 16, bold=True)
+            arcade.draw_text(self.dialogue_text, 40, 110, arcade.color.BLACK, 14)
 
             # Draw Options
             for i, option in enumerate(self.options):
-                arcade.draw_text(option, 40, 130 - (i * 25), arcade.color.BLACK, 12)
+                arcade.draw_text(option, 40, 80 - (i * 25), arcade.color.BLACK, 12)
 
         # Feedback message
         arcade.draw_text(self.feedback_message, 40, 250, arcade.color.RED, 14, italic=True)
