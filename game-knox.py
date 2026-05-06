@@ -1,110 +1,107 @@
-import sys
-import time
+import arcade
 
-def slow_print(text):
-    for char in text:
-        sys.stdout.write(char)
-        sys.stdout.flush()
-        time.sleep(0.02)
-    print()
+# Constants
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+SCREEN_TITLE = "The Daily Grind - Paper Prototype"
 
-class GameState:
+# Game States
+STATE_WALKING = 0
+STATE_CONVERSATION = 1
+STATE_GAME_OVER = 2
+
+class MyGame(arcade.Window):
     def __init__(self):
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+
+        # Game Stats
         self.patience = 10
         self.max_patience = 10
-        self.suspended = False
-        self.failed_class = False
-        self.kicked_out = False
+        self.state = STATE_CONVERSATION # Start at the school gate
 
-    def display_status(self):
-        bar = "▮" * self.patience + "▯" * (self.max_patience - self.patience)
-        print(f"\n--- STATUS ---")
-        print(f"PATIENCE: [{bar}] ({self.patience}/{self.max_patience})")
-        print("--------------\n")
+        # Conversation logic
+        self.current_npc = "Mr. Henderson"
+        self.dialogue_text = "Late again? And no essay? What do you have to say?"
+        self.options = ["[1] Apologize (-3 Pat)", "[2] Ignore (-1 Pat)", "[3] Snap (+4 Pat)"]
+        self.feedback_message = ""
 
-    def clamp_patience(self):
-        if self.patience > self.max_patience:
-            self.patience = self.max_patience
-        if self.patience < 0:
-            self.patience = 0
+    def setup(self):
+        arcade.set_background_color(arcade.color.SKY_BLUE)
 
-def play_game():
-    state = GameState()
+    def on_draw(self):
+        arcade.start_render()
 
-    slow_print("--- THE DAILY GRIND: A PAPER PROTOTYPE ---")
-    slow_print("You wake up tired. The walk to school is long.")
+    # --- 1. Draw the Background (Based on your sketches) ---
+        # School building
+        arcade.draw_rectangle_filled(600, 400, 300, 400, arcade.color.GRAY)
+        arcade.draw_triangle_filled(450, 600, 750, 600, 600, 700, arcade.color.DARK_RED)
 
-    # --- SCENE 1: SCHOOL ---
-    state.display_status()
-    slow_print("Mr. Henderson is at the door. He looks annoyed.")
-    slow_print("Henderson: 'Late again? And no essay? What do you have to say?'")
+        # Road
+        arcade.draw_rectangle_filled(400, 50, 800, 100, arcade.color.BLACK_OLIVE)
 
-    # Mechanic: If patience is 0, player is forced into the worst option
-    if state.patience <= 0:
-        slow_print("!! You've lost your cool. You can only lash out. !!")
-        choice = "C"
-    else:
-        print("A) Apologize and promise it by lunch (-3 Patience)")
-        print("B) Ignore him and walk to your desk (-1 Patience, fail assignment)")
-        print("C) Curse him out and tell him to get off your back (+4 Patience)")
-        choice = input("Choose A, B, or C: ").upper()
+    # --- 2. Draw UI / Patience Bar ---
+        arcade.draw_text(f"Patience:", 20, 560, arcade.color.BLACK, 14)
+        # Background of bar
+        arcade.draw_rectangle_outline(180, 570, 200, 20, arcade.color.BLACK, 2)
+        # Filling the bar
+        bar_width = (self.patience / self.max_patience) * 200
+        if bar_width > 0:
+            arcade.draw_rectangle_filled(80 + (bar_width / 2), 570, bar_width, 16, arcade.color.CRIMSON)
 
-    if choice == "A":
-        state.patience -= 3
-        slow_print("Henderson: 'Fine. Lunchtime. Don't be late.'")
-    elif choice == "B":
-        state.patience -= 1
-        state.failed_class = True
-        slow_print("You walk past. Henderson sighs and marks a '0' in his book.")
-    else:
-        state.patience += 4
-        state.suspended = True
-        slow_print("Henderson: 'Office. NOW. Don't come back until Monday.'")
+    # --- 3. Draw Conversation Box ---
+        if self.state == STATE_CONVERSATION:
+            # Dialogue box
+            arcade.draw_rectangle_filled(400, 150, 760, 150, arcade.color.WHITE_SMOKE)
+            arcade.draw_rectangle_outline(400, 150, 760, 150, arcade.color.BLACK, 3)
 
-    state.clamp_patience()
+            # NPC Name and Text
+            arcade.draw_text(f"{self.current_npc}:", 40, 200, arcade.color.DARK_BLUE_GRAY, 16, bold=True)
+            arcade.draw_text(self.dialogue_text, 40, 175, arcade.color.BLACK, 14)
 
-    # --- SCENE 2: THE GAS STATION ---
-    state.display_status()
-    if state.suspended:
-        slow_print("You're walking home early because of the suspension.")
-    else:
-        slow_print("School is finally over. You're walking past the 7-11.")
+            # Draw Options
+            for i, option in enumerate(self.options):
+                arcade.draw_text(option, 40, 130 - (i * 25), arcade.color.BLACK, 12)
 
-    slow_print("The Crew is outside. Marcus waves you over.")
-    slow_print("Marcus: 'Yo, come chill with us for a bit. You look stressed.'")
+        # Feedback message
+        arcade.draw_text(self.feedback_message, 40, 250, arcade.color.RED, 14, italic=True)
 
-    if state.patience <= 0:
-        slow_print("!! You're too exhausted to deal with Mom. You head to the crew. !!")
-        choice = "B"
-    else:
-        print("A) Go home to Mom. (Mom happy, -5 Patience)")
-        print("B) Hang out with the guys. (Feel better, +6 Patience, Mom will be furious)")
-        choice = input("Choose A or B: ").upper()
+    def on_key_press(self, key, modifiers):
+        if self.state == STATE_CONVERSATION:
+            # If patience is 0, only snapping is allowed
+            if self.patience <= 0:
+                if key == arcade.key.KEY_3:
+                    self.handle_choice(3)
+                return
 
-    if choice == "A":
-        state.patience -= 5
-        slow_print("You go home. Your mom smiles, but the silence of the house is heavy.")
-    else:
-        state.patience += 6
-        slow_print("You laugh and talk for an hour. You feel like a person again.")
-        slow_print("But when you get home, your Mom is waiting at the door...")
-        if state.suspended:
-            state.kicked_out = True
-        else:
-            slow_print("Mom: 'I told you to stay away from them! Get in your room!'")
+            if key == arcade.key.KEY_1:
+                self.handle_choice(1)
+            elif key == arcade.key.KEY_2:
+                self.handle_choice(2)
+            elif key == arcade.key.KEY_3:
+                self.handle_choice(3)
 
-    state.clamp_patience()
+    def handle_choice(self, choice):
+        if choice == 1:
+            self.patience -= 3
+            self.feedback_message = "You swallowed your pride. You're exhausted."
+        elif choice == 2:
+            self.patience -= 1
+            self.feedback_message = "You ignored him. He marks a zero in the book."
+        elif choice == 3:
+            self.patience += 4
+            self.feedback_message = "You snapped! You're going to the office."
 
-    # --- ENDING ---
-    print("\n=== DAY END ===")
-    if state.kicked_out:
-        print("RESULT: Your mom found out about the suspension and the crew. She kicked you out.")
-    elif state.failed_class:
-        print("RESULT: You stayed out of trouble, but you're failing school.")
-    else:
-        print("RESULT: You survived the day, but the cycle repeats tomorrow.")
+        # Clamp patience
+        if self.patience < 0: self.patience = 0
+        if self.patience > 10: self.patience = 10
 
-    state.display_status()
+        # Close conversation after a delay or another key press
+        # (For this prototype, we'll just freeze on the choice)
+
+def main():
+    game = MyGame()
+    game.setup()
+    arcade.run()
 
 if __name__ == "__main__":
-    play_game()
+    main()
