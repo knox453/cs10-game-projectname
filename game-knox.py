@@ -1,35 +1,28 @@
 # ...existing code...
 import arcade
 
-# Constants
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-SCREEN_TITLE = "The Daily Grind - Paper Prototype"
+# Helper compatibility wrappers for different arcade versions
+def rect_filled(cx, cy, width, height, color):
+    try:
+        return arcade.draw_rectangle_filled(cx, cy, width, height, color)
+    except AttributeError:
+        left = cx - width / 2
+        right = cx + width / 2
+        top = cy + height / 2
+        bottom = cy - height / 2
+        return arcade.draw_lrtb_rectangle_filled(left, right, top, bottom, color)
 
-# Game States
-STATE_WALKING = 0
-STATE_CONVERSATION = 1
-STATE_GAME_OVER = 2
+def rect_outline(cx, cy, width, height, color, border_width=1):
+    try:
+        return arcade.draw_rectangle_outline(cx, cy, width, height, color, border_width)
+    except AttributeError:
+        left = cx - width / 2
+        right = cx + width / 2
+        top = cy + height / 2
+        bottom = cy - height / 2
+        return arcade.draw_lrtb_rectangle_outline(left, right, top, bottom, color, border_width)
+# ...existing code...
 
-class MyGame(arcade.Window):
-    def __init__(self):
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-
-        # Game Stats
-        self.patience = 10
-        self.max_patience = 10
-        self.state = STATE_CONVERSATION # Start at the school gate
-
-        # Conversation logic
-        self.current_npc = "Mr. Henderson"
-        self.dialogue_text = "Late again? And no essay? What do you have to say?"
-        self.options = ["[1] Apologize (-3 Pat)", "[2] Ignore (-1 Pat)", "[3] Snap (+4 Pat)"]
-        self.feedback_message = ""
-
-    def setup(self):
-        arcade.set_background_color(arcade.color.SKY_BLUE)
-
-   # ...existing code...
     def on_draw(self):
         # Ensure we call the proper render start for the arcade/pyglet version
         try:
@@ -40,24 +33,32 @@ class MyGame(arcade.Window):
             self.clear()
 
         # Draw a guaranteed visible background (in case set_background_color didn't take effect)
-        arcade.draw_rectangle_filled(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
-                                     SCREEN_WIDTH, SCREEN_HEIGHT,
-                                     arcade.color.SKY_BLUE)
+-        arcade.draw_rectangle_filled(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
+-                                     SCREEN_WIDTH, SCREEN_HEIGHT,
+-                                     arcade.color.SKY_BLUE)
++        rect_filled(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
++                    SCREEN_WIDTH, SCREEN_HEIGHT,
++                    arcade.color.SKY_BLUE)
 
         # --- 1. Draw the Background (Updated Names) ---
-        arcade.draw_rectangle_filled(450, 200, 300, 400, arcade.color.GRAY)
-        arcade.draw_rectangle_filled(400, 50, 800, 100, arcade.color.BLACK_OLIVE)
+-        arcade.draw_rectangle_filled(450, 200, 300, 400, arcade.color.GRAY)
+-        arcade.draw_rectangle_filled(400, 50, 800, 100, arcade.color.BLACK_OLIVE)
++        rect_filled(450, 200, 300, 400, arcade.color.GRAY)
++        rect_filled(400, 50, 800, 100, arcade.color.BLACK_OLIVE)
 
         # --- 2. Draw UI / Patience Bar ---
         arcade.draw_text("Patience:", 20, 560, arcade.color.BLACK, 14)
         bar_width = (self.patience / self.max_patience) * 200
         if bar_width > 0:
-            arcade.draw_rectangle_filled(80 + bar_width / 2, 570, bar_width, 20, arcade.color.CRIMSON)
-        arcade.draw_rectangle_outline(80 + 200 / 2, 570, 200, 20, arcade.color.BLACK)
+-            arcade.draw_rectangle_filled(80 + bar_width / 2, 570, bar_width, 20, arcade.color.CRIMSON)
+-        arcade.draw_rectangle_outline(80 + 200 / 2, 570, 200, 20, arcade.color.BLACK)
++            rect_filled(80 + bar_width / 2, 570, bar_width, 20, arcade.color.CRIMSON)
++        rect_outline(80 + 200 / 2, 570, 200, 20, arcade.color.BLACK)
 
         # --- 3. Draw Conversation Box ---
         if self.state == STATE_CONVERSATION:
-            arcade.draw_rectangle_filled(20 + 760 / 2, 20 + 150 / 2, 760, 150, arcade.color.WHITE_SMOKE)
+-            arcade.draw_rectangle_filled(20 + 760 / 2, 20 + 150 / 2, 760, 150, arcade.color.WHITE_SMOKE)
++            rect_filled(20 + 760 / 2, 20 + 150 / 2, 760, 150, arcade.color.WHITE_SMOKE)
             arcade.draw_text(f"{self.current_npc}:", 40, 140, arcade.color.DARK_BLUE_GRAY, 16, bold=True)
             arcade.draw_text(self.dialogue_text, 40, 110, arcade.color.BLACK, 14)
             for i, option in enumerate(self.options):
