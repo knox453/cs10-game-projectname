@@ -47,18 +47,16 @@ def rect_outline(cx, cy, width, height, color, border_width=1):
 +        rect_filled(400, 50, 800, 100, arcade.color.BLACK_OLIVE)
 
         # --- 2. Draw UI / Patience Bar ---
-        arcade.draw_text("Patience:", 20, 560, arcade.color.BLACK, 14)
+    arcade.draw_text("Patience:", 20, 560, arcade.color.BLACK, 14)
         bar_width = (self.patience / self.max_patience) * 200
         if bar_width > 0:
--            arcade.draw_rectangle_filled(80 + bar_width / 2, 570, bar_width, 20, arcade.color.CRIMSON)
--        arcade.draw_rectangle_outline(80 + 200 / 2, 570, 200, 20, arcade.color.BLACK)
-+            rect_filled(80 + bar_width / 2, 570, bar_width, 20, arcade.color.CRIMSON)
+            rect_filled(80 + bar_width / 2, 570, bar_width, 20, arcade.color.CRIMSON)
 +        rect_outline(80 + 200 / 2, 570, 200, 20, arcade.color.BLACK)
 
         # --- 3. Draw Conversation Box ---
         if self.state == STATE_CONVERSATION:
--            arcade.draw_rectangle_filled(20 + 760 / 2, 20 + 150 / 2, 760, 150, arcade.color.WHITE_SMOKE)
-+            rect_filled(20 + 760 / 2, 20 + 150 / 2, 760, 150, arcade.color.WHITE_SMOKE)
+            rect_filled(20 + 760 / 2, 20 + 150 / 2, 760, 150, arcade.color.WHITE_SMOKE)
+            rect_outline(20 + 760 / 2, 20 + 150 / 2, 760, 150, arcade.color.BLACK)
             arcade.draw_text(f"{self.current_npc}:", 40, 140, arcade.color.DARK_BLUE_GRAY, 16, bold=True)
             arcade.draw_text(self.dialogue_text, 40, 110, arcade.color.BLACK, 14)
             for i, option in enumerate(self.options):
