@@ -29,44 +29,43 @@ class MyGame(arcade.Window):
     def setup(self):
         arcade.set_background_color(arcade.color.SKY_BLUE)
 
+   # ...existing code...
     def on_draw(self):
-        self.clear() # In 3.0, use self.clear() instead of arcade.start_render()
+        # Ensure we call the proper render start for the arcade/pyglet version
+        try:
+            # arcade 2.x uses start_render()
+            arcade.start_render()
+        except AttributeError:
+            # arcade 3.x+ uses clear()
+            self.clear()
+
+        # Draw a guaranteed visible background (in case set_background_color didn't take effect)
+        arcade.draw_rectangle_filled(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
+                                     SCREEN_WIDTH, SCREEN_HEIGHT,
+                                     arcade.color.SKY_BLUE)
 
         # --- 1. Draw the Background (Updated Names) ---
-        # School building (center x, center y, width, height)
         arcade.draw_rectangle_filled(450, 200, 300, 400, arcade.color.GRAY)
-
-        # Road (centered)
         arcade.draw_rectangle_filled(400, 50, 800, 100, arcade.color.BLACK_OLIVE)
 
         # --- 2. Draw UI / Patience Bar ---
         arcade.draw_text("Patience:", 20, 560, arcade.color.BLACK, 14)
-
-        # Filling the bar
         bar_width = (self.patience / self.max_patience) * 200
         if bar_width > 0:
-            # rectangle expects center x, center y
             arcade.draw_rectangle_filled(80 + bar_width / 2, 570, bar_width, 20, arcade.color.CRIMSON)
-
-        # Outline of the full bar (optional)
         arcade.draw_rectangle_outline(80 + 200 / 2, 570, 200, 20, arcade.color.BLACK)
 
         # --- 3. Draw Conversation Box ---
         if self.state == STATE_CONVERSATION:
-            # Dialogue box (centered)
             arcade.draw_rectangle_filled(20 + 760 / 2, 20 + 150 / 2, 760, 150, arcade.color.WHITE_SMOKE)
-
-            # NPC Name and Text
             arcade.draw_text(f"{self.current_npc}:", 40, 140, arcade.color.DARK_BLUE_GRAY, 16, bold=True)
             arcade.draw_text(self.dialogue_text, 40, 110, arcade.color.BLACK, 14)
-
-            # Draw Options
             for i, option in enumerate(self.options):
                 arcade.draw_text(option, 40, 80 - (i * 25), arcade.color.BLACK, 12)
 
-        # Feedback message
         arcade.draw_text(self.feedback_message, 40, 250, arcade.color.RED, 14, italic=True)
 # ...existing code...
+
     def on_key_press(self, key, modifiers):
         if self.state == STATE_CONVERSATION:
             # If patience is 0, only snapping is allowed
