@@ -1,3 +1,4 @@
+# ...existing code...
 import arcade
 
 # Constants
@@ -32,17 +33,11 @@ class MyGame(arcade.Window):
         self.clear() # In 3.0, use self.clear() instead of arcade.start_render()
 
         # --- 1. Draw the Background (Updated Names) ---
-        # School building
-        arcade.draw_rect_filled(
-            arcade.rect.Rect(450, 200, 300, 400), # x, y, width, height
-            arcade.color.GRAY
-        )
+        # School building (center x, center y, width, height)
+        arcade.draw_rectangle_filled(450, 200, 300, 400, arcade.color.GRAY)
 
-        # Road
-        arcade.draw_rect_filled(
-            arcade.rect.Rect(0, 0, 800, 100),
-            arcade.color.BLACK_OLIVE
-        )
+        # Road (centered)
+        arcade.draw_rectangle_filled(400, 50, 800, 100, arcade.color.BLACK_OLIVE)
 
         # --- 2. Draw UI / Patience Bar ---
         arcade.draw_text("Patience:", 20, 560, arcade.color.BLACK, 14)
@@ -50,18 +45,16 @@ class MyGame(arcade.Window):
         # Filling the bar
         bar_width = (self.patience / self.max_patience) * 200
         if bar_width > 0:
-            arcade.draw_rect_filled(
-                arcade.rect.Rect(80, 560, bar_width, 20),
-                arcade.color.CRIMSON
-            )
+            # rectangle expects center x, center y
+            arcade.draw_rectangle_filled(80 + bar_width / 2, 570, bar_width, 20, arcade.color.CRIMSON)
+
+        # Outline of the full bar (optional)
+        arcade.draw_rectangle_outline(80 + 200 / 2, 570, 200, 20, arcade.color.BLACK)
 
         # --- 3. Draw Conversation Box ---
         if self.state == STATE_CONVERSATION:
-            # Dialogue box
-            arcade.draw_rect_filled(
-                arcade.rect.Rect(20, 20, 760, 150),
-                arcade.color.WHITE_SMOKE
-            )
+            # Dialogue box (centered)
+            arcade.draw_rectangle_filled(20 + 760 / 2, 20 + 150 / 2, 760, 150, arcade.color.WHITE_SMOKE)
 
             # NPC Name and Text
             arcade.draw_text(f"{self.current_npc}:", 40, 140, arcade.color.DARK_BLUE_GRAY, 16, bold=True)
@@ -73,20 +66,20 @@ class MyGame(arcade.Window):
 
         # Feedback message
         arcade.draw_text(self.feedback_message, 40, 250, arcade.color.RED, 14, italic=True)
-
+# ...existing code...
     def on_key_press(self, key, modifiers):
         if self.state == STATE_CONVERSATION:
             # If patience is 0, only snapping is allowed
             if self.patience <= 0:
-                if key == arcade.key.KEY_3:
+                if key == arcade.key._3:
                     self.handle_choice(3)
                 return
 
-            if key == arcade.key.KEY_1:
+            if key == arcade.key._1:
                 self.handle_choice(1)
-            elif key == arcade.key.KEY_2:
+            elif key == arcade.key._2:
                 self.handle_choice(2)
-            elif key == arcade.key.KEY_3:
+            elif key == arcade.key._3:
                 self.handle_choice(3)
 
     def handle_choice(self, choice):
@@ -102,7 +95,7 @@ class MyGame(arcade.Window):
 
         # Clamp patience
         if self.patience < 0: self.patience = 0
-        if self.patience > 10: self.patience = 10
+        if self.patience > self.max_patience: self.patience = self.max_patience
 
         # Close conversation after a delay or another key press
         # (For this prototype, we'll just freeze on the choice)
@@ -114,3 +107,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+# ...existing code...
