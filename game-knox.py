@@ -1,4 +1,3 @@
-
 python
 import os
 import arcade
@@ -178,4 +177,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
+
