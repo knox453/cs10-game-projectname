@@ -1,4 +1,4 @@
-python
+# ...existing code...
 import os
 import arcade
 
@@ -11,13 +11,16 @@ def rect_filled(cx, cy, width, height, color):
         right = cx + width / 2
         top = cy + height / 2
         bottom = cy - height / 2
+        # Try lrtb helper if present
         try:
             return arcade.draw_lrtb_rectangle_filled(left, right, top, bottom, color)
         except AttributeError:
+            # Try polygon fill
             points = [(left, bottom), (left, top), (right, top), (right, bottom)]
             try:
                 return arcade.draw_polygon_filled(points, color)
             except AttributeError:
+                # Final fallback: two triangles
                 try:
                     arcade.draw_triangle_filled(left, bottom, left, top, right, top, color)
                     arcade.draw_triangle_filled(left, bottom, right, top, right, bottom, color)
@@ -32,13 +35,16 @@ def rect_outline(cx, cy, width, height, color, border_width=1):
         right = cx + width / 2
         top = cy + height / 2
         bottom = cy - height / 2
+        # Try lrtb outline helper
         try:
             return arcade.draw_lrtb_rectangle_outline(left, right, top, bottom, color, border_width)
         except AttributeError:
             points = [(left, bottom), (left, top), (right, top), (right, bottom)]
+            # Try polygon outline
             try:
                 return arcade.draw_polygon_outline(points, color)
             except AttributeError:
+                # Final fallback: draw four lines
                 try:
                     arcade.draw_line(left, bottom, left, top, color, border_width)
                     arcade.draw_line(left, top, right, top, color, border_width)
@@ -66,6 +72,7 @@ class MyGame(arcade.Window):
         self.dialogue_text = "Late again? And no essay? What do you have to say?"
         self.options = ["[1] Apologize (-3 Pat)", "[2] Ignore (-1 Pat)", "[3] Snap (+4 Pat)"]
         self.feedback_message = ""
+        arcade.set_background_color(arcade.color.SKY_BLUE)
 
         # Load optional drawing at assets/drawing.jpg
         assets_path = os.path.join(os.path.dirname(__file__), "assets", "drawing.jpg")
@@ -81,11 +88,14 @@ class MyGame(arcade.Window):
             self.drawing_path = None
 
     def setup(self):
-        arcade.set_background_color(arcade.color.SKY_BLUE)
+        pass
 
     def on_draw(self):
-        # ✅ FIX: Use self.clear() instead of arcade.start_render()
-        self.clear()
+        # Render start compatible with arcade versions
+        try:
+            arcade.start_render()
+        except AttributeError:
+            self.clear()
 
         # Background
         rect_filled(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
@@ -114,11 +124,12 @@ class MyGame(arcade.Window):
             if getattr(self, "drawing_texture", None):
                 img_w = 160
                 img_h = 120
-                img_x = 120
+                img_x = 120  # left area inside dialogue box
                 img_y = dialog_cy - 10
                 try:
                     arcade.draw_texture_rectangle(img_x, img_y, img_w, img_h, self.drawing_texture)
                 except AttributeError:
+                    # Fallback to Sprite draw
                     try:
                         sprite = arcade.Sprite(self.drawing_path)
                         sprite.center_x = img_x
@@ -142,6 +153,7 @@ class MyGame(arcade.Window):
     def on_key_press(self, key, modifiers):
         if self.state == STATE_CONVERSATION:
             if self.patience <= 0:
+                # allow only snap if patience <= 0
                 if key == arcade.key._3:
                     self.handle_choice(3)
                 return
@@ -177,4 +189,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
+# ...existing code...
