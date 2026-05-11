@@ -74,6 +74,8 @@ def draw_pixel_art(origin_x, origin_y, scale, pattern, palette):
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "The Daily Grind"
+WORLD_WIDTH = 2400
+WORLD_HEIGHT = 800
 
 STATE_WALKING = 0
 STATE_CONVERSATION = 1
@@ -128,6 +130,12 @@ class MyGame(arcade.Window):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
         arcade.set_background_color(arcade.color.SKY_BLUE)
 
+        self.world_camera = arcade.Camera2D(window=self)
+        self.ui_camera = arcade.Camera2D(
+            window=self,
+            position=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2),
+        )
+
         self.keys_down = set()
         self.patience = 10
         self.max_patience = 10
@@ -142,7 +150,7 @@ class MyGame(arcade.Window):
             {
                 "name": "Pack Backpack",
                 "npc": "Your Desk",
-                "location": (145, 120),
+                "location": (160, 150),
                 "radius": 70,
                 "prompt": "Your backpack is open and messy. What do you do first?",
                 "options": [
@@ -159,7 +167,7 @@ class MyGame(arcade.Window):
             {
                 "name": "Eat Breakfast",
                 "npc": "Kitchen Table",
-                "location": (185, 215),
+                "location": (260, 235),
                 "radius": 70,
                 "prompt": "You are running late, but breakfast is still on the table.",
                 "options": [
@@ -176,7 +184,7 @@ class MyGame(arcade.Window):
             {
                 "name": "Catch the Bus",
                 "npc": "Bus Stop",
-                "location": (300, 140),
+                "location": (620, 155),
                 "radius": 75,
                 "prompt": "The bus is pulling in. How do you handle it?",
                 "options": [
@@ -193,7 +201,7 @@ class MyGame(arcade.Window):
             {
                 "name": "Talk to Teacher",
                 "npc": "Mr. Henderson",
-                "location": (660, 150),
+                "location": (1660, 150),
                 "radius": GATE_RADIUS,
                 "prompt": "Late again? And no essay? What do you have to say?",
                 "options": [
@@ -210,7 +218,7 @@ class MyGame(arcade.Window):
             {
                 "name": "Hall Pass Check",
                 "npc": "Hall Monitor",
-                "location": (540, 235),
+                "location": (1820, 255),
                 "radius": 70,
                 "prompt": "Hall pass check. Why are you still outside class?",
                 "options": [
@@ -227,7 +235,7 @@ class MyGame(arcade.Window):
             {
                 "name": "Turn In Homework",
                 "npc": "Ms. Rivera",
-                "location": (645, 240),
+                "location": (1940, 320),
                 "radius": 80,
                 "prompt": "You made it to homeroom. Last chance: finish strong?",
                 "options": [
@@ -255,8 +263,8 @@ class MyGame(arcade.Window):
         self.patience = 10
         self.state = STATE_WALKING
         self.feedback_message = "Start your day and work through the tasks."
-        self.player_x = 120
-        self.player_y = 130
+        self.player_x = 140
+        self.player_y = 120
         self.task_index = 0
         self.current_npc = ""
         self.dialogue_text = ""
@@ -320,7 +328,8 @@ class MyGame(arcade.Window):
             self.draw_center_banner("Game Over. Press R to restart.")
 
     def draw_scene(self):
-        rect_filled(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT, arcade.color.SKY_BLUE)
+        self.world_camera.use()
+        rect_filled(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, WORLD_WIDTH, WORLD_HEIGHT, arcade.color.SKY_BLUE)
         self.draw_pixel_background()
         self.draw_task_markers()
 
