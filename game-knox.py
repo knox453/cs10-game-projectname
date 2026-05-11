@@ -317,6 +317,7 @@ class MyGame(arcade.Window):
         self.clear()
         self.draw_scene()
 
+        self.ui_camera.use()
         if self.state == STATE_CONVERSATION:
             self.draw_conversation_box()
         else:
@@ -350,52 +351,127 @@ class MyGame(arcade.Window):
         self.draw_player()
 
     def draw_pixel_background(self):
-        # yard and road
-        rect_filled(400, 52, 800, 104, arcade.color.DARK_OLIVE_GREEN)
-        rect_filled(400, 90, 800, 18, arcade.color.OLIVE_DRAB)
-        rect_filled(395, 150, 790, 26, arcade.color.DIM_GRAY)
+        # ground and street
+        rect_filled(WORLD_WIDTH / 2, 54, WORLD_WIDTH, 108, arcade.color.DARK_OLIVE_GREEN)
+        rect_filled(WORLD_WIDTH / 2, 94, WORLD_WIDTH, 18, arcade.color.OLIVE_DRAB)
+        rect_filled(WORLD_WIDTH / 2, 150, WORLD_WIDTH, 28, arcade.color.DIM_GRAY)
 
-        # house
-        rect_filled(150, 230, 170, 130, arcade.color.SLATE_GRAY)
-        rect_filled(150, 305, 190, 54, arcade.color.DARK_RED)
-        rect_outline(150, 230, 170, 130, arcade.color.BLACK, 3)
-        rect_outline(150, 305, 190, 54, arcade.color.BLACK, 3)
-        rect_filled(150, 195, 42, 58, arcade.color.BROWN_NOSE)
-        rect_outline(150, 195, 42, 58, arcade.color.BLACK, 2)
-        rect_filled(110, 245, 30, 24, arcade.color.LIGHT_BLUE)
-        rect_filled(190, 245, 30, 24, arcade.color.LIGHT_BLUE)
-        rect_outline(110, 245, 30, 24, arcade.color.BLACK, 2)
-        rect_outline(190, 245, 30, 24, arcade.color.BLACK, 2)
+        # home area
+        self.draw_house(170, 240, 190, 150, arcade.color.SLATE_GRAY, arcade.color.DARK_RED, "HOME")
+        self.draw_tree(340, 210, 1.0)
+        self.draw_mailbox(420, 128)
+        self.draw_fence(20, 460, 520, 10)
 
-        # school building
-        rect_filled(575, 290, 340, 250, arcade.color.SLATE_GRAY)
-        rect_filled(575, 430, 360, 84, arcade.color.DARK_RED)
-        rect_outline(575, 290, 340, 250, arcade.color.BLACK, 3)
-        rect_outline(575, 430, 360, 84, arcade.color.BLACK, 3)
+        # neighborhood extras
+        self.draw_tree(520, 225, 1.2)
+        self.draw_tree(760, 205, 0.9)
+        self.draw_shop(940, 220)
+        self.draw_park(1160, 190)
 
-        # windows and door
-        for wx in (510, 575, 640):
-            for wy in (345, 300):
-                rect_filled(wx, wy, 34, 34, arcade.color.LIGHT_BLUE)
-                rect_outline(wx, wy, 34, 34, arcade.color.BLACK, 2)
-        rect_filled(575, 205, 64, 92, arcade.color.BROWN_NOSE)
-        rect_outline(575, 205, 64, 92, arcade.color.BLACK, 2)
-        rect_filled(575, 250, 14, 14, arcade.color.BLACK)
+        # bus stop zone
+        self.draw_bus_stop(620, 150)
+        self.draw_crosswalk(710, 150)
 
-        # gate and path
-        rect_filled(GATE_X, GATE_Y - 10, 110, 16, arcade.color.BROWN_NOSE)
-        rect_outline(GATE_X, GATE_Y - 10, 110, 16, arcade.color.BLACK, 2)
-        rect_filled(620, 120, 120, 28, arcade.color.DIM_GRAY)
-        rect_filled(730, 120, 110, 28, arcade.color.DIM_GRAY)
-        rect_filled(280, 140, 70, 24, arcade.color.DARK_BLUE)
-        rect_outline(280, 140, 70, 24, arcade.color.BLACK, 2)
-        arcade.draw_text("BUS", 258, 132, arcade.color.WHITE, 14, bold=True)
+        # school grounds
+        self.draw_school(1660, 290)
+        self.draw_tree(1490, 205, 1.1)
+        self.draw_tree(2000, 215, 1.0)
+        self.draw_fence(1420, 2100, 520, 10)
 
-        # cloud blocks
-        for cx, cy in ((120, 520), (180, 500), (650, 530), (710, 505)):
-            rect_filled(cx, cy, 34, 18, arcade.color.WHITE)
+        # hallway / classroom area
+        self.draw_classroom(1940, 330)
 
-        arcade.draw_text("The Daily Grind", 22, 515, arcade.color.BLACK, 20, bold=True)
+        # clouds
+        for cx, cy in ((120, 620), (280, 580), (720, 640), (1320, 620), (1900, 650), (2200, 600)):
+            rect_filled(cx, cy, 52, 26, arcade.color.WHITE)
+
+        arcade.draw_text("The Daily Grind", 22, 740, arcade.color.BLACK, 20, bold=True)
+
+    def draw_house(self, center_x, center_y, width, height, wall_color, roof_color, label):
+        rect_filled(center_x, center_y, width, height, wall_color)
+        rect_outline(center_x, center_y, width, height, arcade.color.BLACK, 3)
+        rect_filled(center_x, center_y + height / 2 + 20, width + 20, 50, roof_color)
+        rect_outline(center_x, center_y + height / 2 + 20, width + 20, 50, arcade.color.BLACK, 3)
+        rect_filled(center_x, center_y - 30, 42, 70, arcade.color.BROWN_NOSE)
+        rect_outline(center_x, center_y - 30, 42, 70, arcade.color.BLACK, 2)
+        rect_filled(center_x - width * 0.22, center_y + 10, 32, 28, arcade.color.LIGHT_BLUE)
+        rect_filled(center_x + width * 0.22, center_y + 10, 32, 28, arcade.color.LIGHT_BLUE)
+        rect_outline(center_x - width * 0.22, center_y + 10, 32, 28, arcade.color.BLACK, 2)
+        rect_outline(center_x + width * 0.22, center_y + 10, 32, 28, arcade.color.BLACK, 2)
+        arcade.draw_text(label, center_x, center_y + height / 2 + 60, arcade.color.BLACK, 12, anchor_x="center", bold=True)
+
+    def draw_tree(self, center_x, center_y, scale):
+        rect_filled(center_x, center_y - 18 * scale, 14 * scale, 46 * scale, arcade.color.BROWN_NOSE)
+        rect_filled(center_x, center_y + 24 * scale, 70 * scale, 60 * scale, arcade.color.DARK_GREEN)
+        rect_outline(center_x, center_y + 24 * scale, 70 * scale, 60 * scale, arcade.color.BLACK, 2)
+        rect_outline(center_x, center_y - 18 * scale, 14 * scale, 46 * scale, arcade.color.BLACK, 2)
+
+    def draw_mailbox(self, center_x, center_y):
+        rect_filled(center_x, center_y, 28, 18, arcade.color.RED_DEVIL)
+        rect_outline(center_x, center_y, 28, 18, arcade.color.BLACK, 2)
+        rect_filled(center_x - 12, center_y - 20, 4, 28, arcade.color.BROWN_NOSE)
+        rect_filled(center_x + 12, center_y - 20, 4, 28, arcade.color.BROWN_NOSE)
+
+    def draw_fence(self, left_x, right_x, y, height):
+        x = left_x
+        while x < right_x:
+            rect_filled(x, y, 10, height, arcade.color.BURLYWOOD)
+            rect_outline(x, y, 10, height, arcade.color.BLACK, 1)
+            x += 18
+        rect_filled((left_x + right_x) / 2, y, right_x - left_x, 4, arcade.color.BURLYWOOD)
+
+    def draw_shop(self, center_x, center_y):
+        rect_filled(center_x, center_y, 130, 110, arcade.color.ORANGE_RED)
+        rect_outline(center_x, center_y, 130, 110, arcade.color.BLACK, 3)
+        rect_filled(center_x, center_y + 65, 150, 34, arcade.color.GOLD)
+        rect_outline(center_x, center_y + 65, 150, 34, arcade.color.BLACK, 2)
+        arcade.draw_text("SHOP", center_x, center_y + 56, arcade.color.BLACK, 16, anchor_x="center", bold=True)
+        rect_filled(center_x - 28, center_y + 10, 26, 22, arcade.color.LIGHT_BLUE)
+        rect_filled(center_x + 28, center_y + 10, 26, 22, arcade.color.LIGHT_BLUE)
+
+    def draw_park(self, center_x, center_y):
+        rect_filled(center_x, center_y, 240, 120, arcade.color.DARK_GREEN)
+        rect_outline(center_x, center_y, 240, 120, arcade.color.BLACK, 3)
+        rect_filled(center_x - 50, center_y + 20, 18, 60, arcade.color.BROWN_NOSE)
+        rect_filled(center_x - 10, center_y + 36, 18, 44, arcade.color.BROWN_NOSE)
+        rect_filled(center_x + 30, center_y + 20, 18, 60, arcade.color.BROWN_NOSE)
+        rect_filled(center_x - 50, center_y + 58, 64, 46, arcade.color.GREEN)
+        rect_filled(center_x - 10, center_y + 66, 68, 54, arcade.color.GREEN)
+        rect_filled(center_x + 30, center_y + 58, 64, 46, arcade.color.GREEN)
+        arcade.draw_text("PARK", center_x, center_y - 48, arcade.color.WHITE, 14, anchor_x="center", bold=True)
+
+    def draw_bus_stop(self, center_x, center_y):
+        rect_filled(center_x, center_y, 90, 36, arcade.color.DARK_BLUE)
+        rect_outline(center_x, center_y, 90, 36, arcade.color.BLACK, 2)
+        rect_filled(center_x, center_y + 48, 14, 92, arcade.color.BLACK)
+        arcade.draw_text("BUS", center_x, center_y - 8, arcade.color.WHITE, 16, anchor_x="center", bold=True)
+
+    def draw_crosswalk(self, center_x, center_y):
+        for offset in (-36, -12, 12, 36):
+            rect_filled(center_x + offset, center_y, 18, 34, arcade.color.WHITE)
+            rect_outline(center_x + offset, center_y, 18, 34, arcade.color.BLACK, 1)
+
+    def draw_school(self, center_x, center_y):
+        rect_filled(center_x, center_y, 380, 280, arcade.color.SLATE_GRAY)
+        rect_filled(center_x, center_y + 150, 410, 86, arcade.color.DARK_RED)
+        rect_outline(center_x, center_y, 380, 280, arcade.color.BLACK, 3)
+        rect_outline(center_x, center_y + 150, 410, 86, arcade.color.BLACK, 3)
+        for wx in (center_x - 95, center_x, center_x + 95):
+            for wy in (center_y + 55, center_y + 5):
+                rect_filled(wx, wy, 38, 34, arcade.color.LIGHT_BLUE)
+                rect_outline(wx, wy, 38, 34, arcade.color.BLACK, 2)
+        rect_filled(center_x, center_y - 20, 72, 108, arcade.color.BROWN_NOSE)
+        rect_outline(center_x, center_y - 20, 72, 108, arcade.color.BLACK, 3)
+        rect_filled(center_x, center_y + 28, 16, 16, arcade.color.BLACK)
+
+    def draw_classroom(self, center_x, center_y):
+        rect_filled(center_x, center_y, 160, 130, arcade.color.GRAY)
+        rect_outline(center_x, center_y, 160, 130, arcade.color.BLACK, 3)
+        rect_filled(center_x - 35, center_y + 20, 28, 28, arcade.color.LIGHT_BLUE)
+        rect_filled(center_x + 35, center_y + 20, 28, 28, arcade.color.LIGHT_BLUE)
+        rect_outline(center_x - 35, center_y + 20, 28, 28, arcade.color.BLACK, 2)
+        rect_outline(center_x + 35, center_y + 20, 28, 28, arcade.color.BLACK, 2)
+        arcade.draw_text("CLASS", center_x, center_y + 78, arcade.color.BLACK, 14, anchor_x="center", bold=True)
 
     def draw_task_markers(self):
         if self.state == STATE_WIN:
@@ -413,8 +489,17 @@ class MyGame(arcade.Window):
             arcade.draw_text(task["name"], x, y + 60, arcade.color.BLACK, 9, anchor_x="center")
 
     def draw_player(self):
-        draw_pixel_art(self.player_x, self.player_y + 3, 9, PLAYER_PATTERN, PLAYER_PALETTE)
-        rect_outline(self.player_x, self.player_y + 5, 82, 96, arcade.color.WHITE, 1)
+        # Stick-figure player with backpack, inspired by the sketch you added.
+        arcade.draw_circle_outline(self.player_x, self.player_y + 58, 18, arcade.color.BLACK, 2)
+        arcade.draw_line(self.player_x, self.player_y + 40, self.player_x, self.player_y + 5, arcade.color.BLACK, 2)
+        arcade.draw_line(self.player_x, self.player_y + 25, self.player_x - 24, self.player_y + 10, arcade.color.BLACK, 2)
+        arcade.draw_line(self.player_x, self.player_y + 22, self.player_x + 18, self.player_y + 18, arcade.color.BLACK, 2)
+        arcade.draw_line(self.player_x, self.player_y + 5, self.player_x - 18, self.player_y - 30, arcade.color.BLACK, 2)
+        arcade.draw_line(self.player_x, self.player_y + 5, self.player_x + 20, self.player_y - 30, arcade.color.BLACK, 2)
+        rect_filled(self.player_x - 24, self.player_y + 18, 40, 34, arcade.color.DARK_RED)
+        rect_outline(self.player_x - 24, self.player_y + 18, 40, 34, arcade.color.BLACK, 2)
+        rect_filled(self.player_x - 18, self.player_y + 24, 16, 20, arcade.color.SANDY_BROWN)
+        rect_outline(self.player_x - 18, self.player_y + 24, 16, 20, arcade.color.BLACK, 1)
 
     def draw_hud_text(self):
         arcade.draw_text("Patience:", 20, 560, arcade.color.BLACK, 14)
