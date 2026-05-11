@@ -111,6 +111,8 @@ BUILDINGS = [
     Building("work", "Corner Store", "After-school shift", 80, 310, 80, 250, (104, 128, 93)),
     Building("gas", "Gas Station", "Friends outside", 600, 820, 70, 250, (128, 118, 74)),
     Building("bus", "Bus Stop", "Long wait", 350, 520, 250, 360, (95, 112, 132)),
+    Building("pantry", "Food Pantry", "Aid pickup", 505, 720, 255, 395, (90, 137, 109)),
+    Building("park", "Park", "Quiet break", 255, 470, 430, 560, (82, 145, 97)),
 ]
 
 
@@ -301,6 +303,44 @@ SCENES = [
                 -18,
                 3,
                 0,
+                "rash",
+            ),
+        ],
+    ),
+    Scene(
+        "pantry",
+        "Food Pantry: Waiting in Line",
+        "pantry",
+        (
+            "After your shift, you and your mom stop at the food pantry. "
+            "The line is long, the room is quiet, and everyone is trying not to look embarrassed."
+        ),
+        [
+            Choice(
+                "Wait your turn and take what is offered.",
+                "You get food for the house, but the long line drains what is left of your patience.",
+                -16,
+                2,
+                6,
+                12,
+                "patient",
+            ),
+            Choice(
+                "Ask politely whether there is anything extra today.",
+                "The worker helps where they can, and you leave with a little more than you expected.",
+                -10,
+                4,
+                4,
+                10,
+                "mixed",
+            ),
+            Choice(
+                "Leave early because the wait feels humiliating.",
+                "You get out of the room fast, but now the fridge at home stays empty longer.",
+                8,
+                -8,
+                -6,
+                -10,
                 "rash",
             ),
         ],
@@ -746,33 +786,33 @@ class GameView(arcade.View):
         arcade.draw_text(
             self.current_scene.situation,
             108,
-            468,
+            472,
             COLOR_TEXT,
-            15,
-            width=684,
+            14,
+            width=660,
             multiline=True,
         )
         arcade.draw_text(
             "Calm choices spend morality. If morality runs out, only the harshest option stays available.",
             108,
-            392,
+            402,
             COLOR_MUTED,
-            12,
+            11,
         )
 
         self.choice_buttons.clear()
         for index, choice in enumerate(self.current_scene.choices):
             left = 108
             right = 792
-            top = 350 - index * 82
-            bottom = top - 58
+            top = 336 - index * 90
+            bottom = top - 62
             locked = self.choice_locked(index)
             fill = COLOR_LOCKED if locked else self.choice_color(choice)
             arcade.draw_lrbt_rectangle_filled(left, right, bottom, top, fill)
             arcade.draw_lrbt_rectangle_filled(left, right, top - 4, top, (255, 255, 255, 35))
             label = choice.label if not locked else "Morality is empty: this choice is unavailable."
-            arcade.draw_text(label, left + 16, bottom + 33, COLOR_TEXT, 13, width=640, multiline=True)
-            arcade.draw_text(self.effect_text(choice), left + 16, bottom + 12, (236, 234, 220), 10)
+            arcade.draw_text(label, left + 16, bottom + 36, COLOR_TEXT, 12, width=640, multiline=True)
+            arcade.draw_text(self.effect_text(choice), left + 16, bottom + 13, (236, 234, 220), 10)
             self.choice_buttons.append((index, left, right, bottom, top))
 
     def draw_result(self) -> None:
