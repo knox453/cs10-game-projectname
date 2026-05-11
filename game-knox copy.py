@@ -31,6 +31,9 @@ COLOR_GOOD = (91, 169, 121)
 COLOR_WARN = (218, 171, 78)
 COLOR_BAD = (198, 83, 78)
 COLOR_TARGET = (232, 213, 132)
+COLOR_STICK = (25, 25, 25)
+COLOR_BAG = (49, 49, 49)
+COLOR_BAG_HIGHLIGHT = (205, 205, 205)
 
 
 def draw_outline_lrbt(left: float, right: float, bottom: float, top: float, color: tuple[int, int, int], border_width: int = 1) -> None:
@@ -415,8 +418,51 @@ class GameView(arcade.View):
             arcade.draw_text(building.name, building.left + 10, building.top - 12, COLOR_TEXT, 12)
             arcade.draw_text(building.prompt, building.left + 10, building.bottom + 12, (232, 225, 176), 10)
 
-        arcade.draw_circle_filled(self.player_x, self.player_y, 15, COLOR_PLAYER)
-        arcade.draw_circle_filled(self.player_x + 5, self.player_y + 6, 3, (20, 50, 45))
+        self.draw_player()
+
+    def draw_player(self) -> None:
+        """Draw a hand-drawn stick figure that matches the reference image."""
+
+        x = self.player_x
+        y = self.player_y
+
+        head_y = y + 34
+        torso_top = y + 14
+        torso_bottom = y - 16
+        left_shoulder = x - 2
+        right_shoulder = x + 2
+        hip_x = x
+        hip_y = y - 16
+
+        # Head and face
+        arcade.draw_circle_outline(x, head_y, 22, COLOR_STICK, 3)
+        arcade.draw_line(x - 8, head_y + 7, x - 8, head_y - 1, COLOR_STICK, 3)
+        arcade.draw_line(x + 8, head_y + 7, x + 8, head_y - 1, COLOR_STICK, 3)
+        arcade.draw_line(x - 2, head_y + 1, x - 2, head_y - 6, COLOR_STICK, 3)
+        arcade.draw_line(x - 1, head_y - 7, x + 4, head_y - 1, COLOR_STICK, 3)
+        arcade.draw_line(x - 11, head_y - 15, x + 13, head_y - 15, COLOR_STICK, 3)
+
+        # Torso
+        arcade.draw_line(x, torso_top, x, torso_bottom, COLOR_STICK, 3)
+
+        # Backpack on the left side of the body
+        bag_left = x - 44
+        bag_right = x - 6
+        bag_top = y + 8
+        bag_bottom = y - 26
+        arcade.draw_lrbt_rectangle_filled(bag_left, bag_right, bag_bottom, bag_top, COLOR_BAG)
+        draw_outline_lrbt(bag_left, bag_right, bag_bottom, bag_top, COLOR_STICK, 3)
+        arcade.draw_line(bag_left + 5, bag_bottom + 2, bag_left + 5, bag_top - 4, COLOR_STICK, 2)
+        arcade.draw_line(bag_left + 9, bag_top - 6, bag_right - 4, bag_bottom + 4, COLOR_BAG_HIGHLIGHT, 2)
+        arcade.draw_line(bag_left + 13, bag_bottom + 1, bag_right - 10, bag_top - 1, COLOR_BAG_HIGHLIGHT, 2)
+
+        # Arm holding the backpack
+        arcade.draw_line(left_shoulder, torso_top, bag_right - 2, y + 4, COLOR_STICK, 3)
+        arcade.draw_line(right_shoulder, torso_top, x + 20, y - 2, COLOR_STICK, 3)
+
+        # Legs in a wide stance
+        arcade.draw_line(hip_x, hip_y, x - 26, y - 78, COLOR_STICK, 3)
+        arcade.draw_line(hip_x, hip_y, x + 34, y - 74, COLOR_STICK, 3)
 
     def draw_hud(self) -> None:
         arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 600, 650, (18, 19, 21, 245))
