@@ -97,6 +97,7 @@ class CharacterProfile:
     key: str
     name: str
     bio: str
+    body_type: str
     patience_bonus: int
     stability_bonus: int
     grades_bonus: int
@@ -118,6 +119,7 @@ CHARACTER_PROFILES = [
         "planner",
         "The Quiet Planner",
         "Keeps notes, thinks ahead, and tries to hold the day together before it falls apart.",
+        "average",
         5,
         0,
         8,
@@ -128,6 +130,7 @@ CHARACTER_PROFILES = [
         "helper",
         "The Family Helper",
         "Helps at home and at work, but school often gets pushed to the edge of the day.",
+        "fat",
         2,
         6,
         -2,
@@ -138,6 +141,7 @@ CHARACTER_PROFILES = [
         "connector",
         "The Social Connector",
         "Knows people everywhere, leans on friends for energy, and has a hard time staying out of trouble.",
+        "skinny",
         4,
         3,
         -4,
