@@ -270,6 +270,7 @@ class MyGame(arcade.Window):
         self.dialogue_text = ""
         self.options = []
         self.keys_down.clear()
+        self.world_camera.position = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
     def current_task(self):
         if self.task_index < len(self.tasks):
