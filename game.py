@@ -74,9 +74,29 @@ class Scene:
     choices: list[Choice]
 
 
+@dataclass
+class Character:
+    """A selectable player look."""
+
+    name: str
+    shirt: tuple[int, int, int]
+    pants: tuple[int, int, int]
+    backpack: tuple[int, int, int]
+    description: str
+
+
+CHARACTERS = [
+    Character("Miles", (82, 178, 154), (37, 67, 86), (222, 170, 82), "Balanced and observant"),
+    Character("Knox", (201, 91, 83), (54, 63, 92), (84, 146, 171), "Bold and direct"),
+    Character("Drew", (118, 112, 184), (68, 82, 69), (207, 143, 93), "Quiet and careful"),
+]
+
+
 BUILDINGS = [
     Building("home", "Apartment", "Start / Finish", 55, 220, 410, 575, (118, 122, 132)),
     Building("school", "School", "Homework talk", 570, 835, 420, 580, (137, 98, 84)),
+    Building("bus", "Bus Stop", "Get across town", 342, 500, 430, 555, (88, 111, 130)),
+    Building("pantry", "Food Pantry", "Pick up groceries", 330, 510, 70, 225, (126, 91, 118)),
     Building("work", "Corner Store", "After-school shift", 80, 310, 80, 250, (104, 128, 93)),
     Building("gas", "Gas Station", "Friends outside", 600, 820, 70, 250, (128, 118, 74)),
 ]
@@ -161,6 +181,44 @@ SCENES = [
         ],
     ),
     Scene(
+        "bus",
+        "Bus Stop: Missing The Transfer",
+        "bus",
+        (
+            "After school, the bus is late and your next transfer leaves in four minutes. "
+            "If you miss it, you will be late to work. If you walk, you save the fare but lose time and energy."
+        ),
+        [
+            Choice(
+                "Ask the driver to radio the transfer bus.",
+                "The driver helps, but asking politely while everyone watches takes more patience than you expected.",
+                -13,
+                5,
+                0,
+                0,
+                "patient",
+            ),
+            Choice(
+                "Walk fast and hope your manager understands.",
+                "You save the fare and keep moving, but you arrive tired and a little late.",
+                -7,
+                -4,
+                0,
+                0,
+                "mixed",
+            ),
+            Choice(
+                "Kick the bench and yell about the bus.",
+                "People look away. The anger gets out, but work starts with another problem attached to your name.",
+                11,
+                -14,
+                0,
+                -2,
+                "rash",
+            ),
+        ],
+    ),
+    Scene(
         "work",
         "Work: Extra Shift",
         "work",
@@ -194,6 +252,44 @@ SCENES = [
                 -18,
                 3,
                 0,
+                "rash",
+            ),
+        ],
+    ),
+    Scene(
+        "pantry",
+        "Food Pantry: The Line",
+        "pantry",
+        (
+            "Your mom texts that the fridge is almost empty, so you stop at the food pantry. "
+            "The line is long, the volunteers are rushed, and homework time is disappearing."
+        ),
+        [
+            Choice(
+                "Wait calmly and thank the volunteer.",
+                "You bring food home and keep the peace, but the wait drains what was left of your evening.",
+                -15,
+                10,
+                -6,
+                8,
+                "patient",
+            ),
+            Choice(
+                "Take the smallest bag so you can leave faster.",
+                "You save time for schoolwork, but dinner is thin and your mom has to stretch it.",
+                -8,
+                -4,
+                5,
+                -3,
+                "mixed",
+            ),
+            Choice(
+                "Argue when they run out of the food your family needed.",
+                "The volunteer asks you to step outside. You leave with less food and more frustration.",
+                12,
+                -16,
+                -4,
+                -10,
                 "rash",
             ),
         ],
