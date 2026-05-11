@@ -4,8 +4,8 @@ You've identified your topic, tested three different game perspectives, and play
 
 Your design document should have:
 
-* A clear description of your chosen paper prototype  
-* Sketches and descriptions of your game screens and mechanics  
+* A clear description of your chosen paper prototype
+* Sketches and descriptions of your game screens and mechanics
 * Justification for why this design serves your learning goal
 
 ---
@@ -17,7 +17,7 @@ Your design document should have:
 | We are making a game about poverty for anybody, because they are the people who most need to understand it.  |
 | :---- |
 
-**Sentence 2 \- Learning Goal:** We want a player to walk away understanding \[one specific thing\]. 
+**Sentence 2 \- Learning Goal:** We want a player to walk away understanding \[one specific thing\].
 
 | We want a player to walk away understanding poverty |
 | :---- |
@@ -127,7 +127,7 @@ Now let’s flesh out your paper prototype into a game idea\! In a serious game,
 
 Sketch out everything that will be needed for your “Minimum Viable Game.” Rough sketches are better than no sketches. These don't need to be pretty.
 
-**What does the player see on screen?** Sketch the **minimum** different views for your game to work. 
+**What does the player see on screen?** Sketch the **minimum** different views for your game to work.
 
 |   ![][image5] Very rough sketch \- By miles   |
 | :---- |
