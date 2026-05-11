@@ -1,8 +1,8 @@
 """A serious game about one difficult day living in poverty.
 
 Move around the small neighborhood, enter each location, and make choices.
-The patience bar is the key mechanic from the design doc: calm/safe choices
-cost patience, while angry or risky choices may feel easier but cause fallout.
+The morality bar is the key mechanic from the design doc: calm/safe choices
+cost morality, while angry or risky choices may feel easier but cause fallout.
 """
 
 from __future__ import annotations
@@ -528,7 +528,7 @@ class GameView(arcade.View):
             anchor_x="center",
         )
         arcade.draw_text(
-            "Each version begins the same story with a slightly different starting energy and support.",
+            "Each version begins the same story with a slightly different starting outlook and support.",
             SCREEN_WIDTH / 2,
             556,
             COLOR_MUTED,
@@ -614,6 +614,13 @@ class GameView(arcade.View):
         torso_bottom = y - 12
         hip_y = y - 12
 
+        shirt_left = x - torso_half
+        shirt_right = x + torso_half
+        shirt_top = y + 9
+        shirt_bottom = y - 10
+        arcade.draw_lrbt_rectangle_filled(shirt_left, shirt_right, shirt_bottom, shirt_top, accent)
+        draw_outline_lrbt(shirt_left, shirt_right, shirt_bottom, shirt_top, COLOR_STICK, 1)
+
         arcade.draw_circle_outline(x, head_y, head_radius, COLOR_STICK, max(1, line_width - 1))
         arcade.draw_line(x - head_radius // 3, head_y + 3, x - head_radius // 3, head_y - 1, COLOR_STICK, max(1, line_width - 1))
         arcade.draw_line(x + head_radius // 3, head_y + 3, x + head_radius // 3, head_y - 1, COLOR_STICK, max(1, line_width - 1))
@@ -632,8 +639,8 @@ class GameView(arcade.View):
 
         arcade.draw_line(x - 1, torso_top, x - arm_span, y - 2, COLOR_STICK, line_width)
         arcade.draw_line(x + 1, torso_top, x + arm_span, y - 1, COLOR_STICK, line_width)
-        arcade.draw_line(x, hip_y, x - leg_span, y - 24, COLOR_STICK, line_width)
-        arcade.draw_line(x, hip_y, x + leg_span + 1, y - 22, COLOR_STICK, line_width)
+        arcade.draw_line(x, hip_y, x - leg_span, y - 24, accent, line_width)
+        arcade.draw_line(x, hip_y, x + leg_span + 1, y - 22, accent, line_width)
 
     def draw_world(self) -> None:
         arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT, COLOR_BG)
@@ -712,7 +719,7 @@ class GameView(arcade.View):
             title = f"One Long Day - {self.selected_profile.name}"
         arcade.draw_text(title, 18, 620, COLOR_TEXT, 18, bold=True)
         arcade.draw_text(f"Day step {self.scene_index + 1} of {len(SCENES)}", 18, 604, COLOR_MUTED, 10)
-        self.draw_meter("Patience", self.patience, 180, COLOR_WARN)
+        self.draw_meter("Morality", self.patience, 180, COLOR_GOOD)
         self.draw_meter("Stability", self.stability, 365, COLOR_GOOD)
         self.draw_meter("Grades", self.grades, 550, (104, 156, 212))
         self.draw_meter("Family", self.family, 735, (207, 134, 181))
@@ -739,7 +746,7 @@ class GameView(arcade.View):
             multiline=True,
         )
         arcade.draw_text(
-            "Calm choices spend patience. If patience runs out, only the harshest option stays available.",
+            "Calm choices spend morality. If morality runs out, only the harshest option stays available.",
             108,
             392,
             COLOR_MUTED,
@@ -756,7 +763,7 @@ class GameView(arcade.View):
             fill = COLOR_LOCKED if locked else self.choice_color(choice)
             arcade.draw_lrbt_rectangle_filled(left, right, bottom, top, fill)
             arcade.draw_lrbt_rectangle_filled(left, right, top - 4, top, (255, 255, 255, 35))
-            label = choice.label if not locked else "Patience is empty: this choice is unavailable."
+            label = choice.label if not locked else "Morality is empty: this choice is unavailable."
             arcade.draw_text(label, left + 16, bottom + 33, COLOR_TEXT, 13, width=640, multiline=True)
             arcade.draw_text(self.effect_text(choice), left + 16, bottom + 12, (236, 234, 220), 10)
             self.choice_buttons.append((index, left, right, bottom, top))
@@ -842,7 +849,7 @@ class GameView(arcade.View):
     def effect_text(self, choice: Choice) -> str:
         signs = []
         for label, value in [
-            ("patience", choice.patience),
+            ("morality", choice.patience),
             ("stability", choice.stability),
             ("grades", choice.grades),
             ("family", choice.family),
@@ -879,7 +886,7 @@ class GameView(arcade.View):
         self.awaiting_continue = False
         average = (self.stability + self.grades + self.family + self.patience) / 4
         weakest = min(
-            [("patience", self.patience), ("stability", self.stability), ("grades", self.grades), ("family trust", self.family)],
+            [("morality", self.patience), ("stability", self.stability), ("grades", self.grades), ("family trust", self.family)],
             key=lambda item: item[1],
         )
         if average >= 58 and self.grades >= 45 and self.family >= 45:
@@ -898,7 +905,7 @@ class GameView(arcade.View):
             {headline}
 
             Final scores:
-            Patience {self.patience} | Stability {self.stability} | Grades {self.grades} | Family {self.family}
+            Morality {self.patience} | Stability {self.stability} | Grades {self.grades} | Family {self.family}
 
             Your lowest area was {weakest[0]}. That does not mean you made one bad choice. It means the same choice can cost more when money, time, rest, and support are all limited.
 
