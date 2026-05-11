@@ -186,8 +186,6 @@ class MyGame(arcade.Window):
         self.dialogue_text = ""
         self.options = []
 
-        assets_path = os.path.join(os.path.dirname(__file__), "assets", "drawing.jpg")
-        self.drawing_texture = None
         self.setup()
 
     def setup(self):
@@ -317,7 +315,7 @@ class MyGame(arcade.Window):
     def draw_conversation_box(self):
         dialog_cx = SCREEN_WIDTH / 2
         dialog_cy = 115
-        rect_filled(dialog_cx, dialog_cy, 760, 180, arcade.color.WHITESMOKE)
+        rect_filled(dialog_cx, dialog_cy, 760, 180, arcade.color.WHITE_SMOKE)
         rect_outline(dialog_cx, dialog_cy, 760, 180, arcade.color.BLACK, 2)
 
         # NPC portrait as chunky pixel art
