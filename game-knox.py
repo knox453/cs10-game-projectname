@@ -1,4 +1,3 @@
-import os
 import arcade
 
 
@@ -52,6 +51,26 @@ def clamp(value, low, high):
     return max(low, min(high, value))
 
 
+def draw_pixel_rect(cx, cy, width, height, color):
+    rect_filled(round(cx), round(cy), round(width), round(height), color)
+
+
+def draw_pixel_art(origin_x, origin_y, scale, pattern, palette):
+    rows = len(pattern)
+    cols = max(len(row) for row in pattern)
+    start_x = origin_x - (cols * scale) / 2 + scale / 2
+    start_y = origin_y + (rows * scale) / 2 - scale / 2
+
+    for row_index, row in enumerate(pattern):
+        for col_index, cell in enumerate(row):
+            color = palette.get(cell)
+            if color is None:
+                continue
+            x = start_x + col_index * scale
+            y = start_y - row_index * scale
+            draw_pixel_rect(x, y, scale, scale, color)
+
+
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "The Daily Grind"
@@ -80,6 +99,29 @@ MOVE_DOWN_KEYS = {arcade.key.DOWN, arcade.key.S}
 INTERACT_KEYS = {arcade.key.E}
 RESTART_KEYS = {arcade.key.R}
 
+PLAYER_PATTERN = [
+    "....HH....",
+    "...HSSH...",
+    "..HSSSSH..",
+    "..HSSSSH..",
+    "...CCCC...",
+    "..CCCCCCH.",
+    "..CPPPPC..",
+    "...P..P...",
+    "..WW..WW..",
+    ".BBBBBBBB.",
+]
+
+PLAYER_PALETTE = {
+    ".": None,
+    "H": arcade.color.BLACK,
+    "S": arcade.color.PEACH,
+    "C": arcade.color.DARK_BLUE,
+    "P": arcade.color.BROWN_NOSE,
+    "W": arcade.color.WHITE,
+    "B": arcade.color.BLACK,
+}
+
 
 class MyGame(arcade.Window):
     def __init__(self):
@@ -91,11 +133,9 @@ class MyGame(arcade.Window):
         self.max_patience = 10
         self.state = STATE_WALKING
         self.feedback_message = ""
-        self.message_timer = 0.0
 
         self.player_x = 120
         self.player_y = 130
-        self.player_color = arcade.color.DARK_BLUE
 
         self.current_turn = 0
         self.encounters = [
@@ -148,15 +188,6 @@ class MyGame(arcade.Window):
 
         assets_path = os.path.join(os.path.dirname(__file__), "assets", "drawing.jpg")
         self.drawing_texture = None
-        self.drawing_path = None
-        if os.path.exists(assets_path):
-            try:
-                self.drawing_texture = arcade.load_texture(assets_path)
-                self.drawing_path = assets_path
-            except Exception:
-                self.drawing_texture = None
-                self.drawing_path = None
-
         self.setup()
 
     def setup(self):
@@ -166,7 +197,6 @@ class MyGame(arcade.Window):
         self.patience = 10
         self.state = STATE_WALKING
         self.feedback_message = "Walk to the school gate and press E."
-        self.message_timer = 0.0
         self.player_x = 120
         self.player_y = 130
         self.current_turn = 0
@@ -180,7 +210,6 @@ class MyGame(arcade.Window):
         self.current_turn = 0
         self.set_current_encounter_text()
         self.feedback_message = "Press 1, 2, or 3 to respond."
-        self.message_timer = 0.0
 
     def set_current_encounter_text(self):
         encounter = self.encounters[self.current_turn]
@@ -193,7 +222,6 @@ class MyGame(arcade.Window):
         delta, response = encounter["outcomes"][choice - 1]
         self.patience = clamp(self.patience + delta, 0, self.max_patience)
         self.feedback_message = response
-        self.message_timer = 0.0
 
         if self.patience <= 0:
             self.state = STATE_GAME_OVER
@@ -224,24 +252,50 @@ class MyGame(arcade.Window):
 
     def draw_scene(self):
         rect_filled(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT, arcade.color.SKY_BLUE)
-        rect_filled(580, 280, 360, 280, arcade.color.GRAY)
-        rect_filled(580, 430, 380, 90, arcade.color.DARK_RED)
-        rect_filled(400, 50, SCREEN_WIDTH, 100, arcade.color.BLACK_OLIVE)
-        rect_filled(GATE_X, GATE_Y, 90, 20, arcade.color.BROWN_NOSE)
-        rect_outline(GATE_X, GATE_Y, 90, 40, arcade.color.BLACK, 2)
-
-        arcade.draw_text("School", 500, 520, arcade.color.WHITE, 24, bold=True)
+        self.draw_pixel_background()
 
         if self.state == STATE_WALKING:
-            arcade.draw_text("Walk to the gate. Press E to talk.", 20, 570, arcade.color.BLACK, 14)
+            arcade.draw_text("Walk to the gate. Press E to talk.", 20, 570, arcade.color.BLACK, 14, bold=True)
             if self.distance_to_gate() <= GATE_RADIUS:
                 arcade.draw_text("Press E", GATE_X - 30, GATE_Y + 35, arcade.color.DARK_GREEN, 14, bold=True)
 
         self.draw_player()
 
+    def draw_pixel_background(self):
+        # ground
+        rect_filled(400, 52, 800, 104, arcade.color.DARK_OLIVE_GREEN)
+        rect_filled(400, 90, 800, 18, arcade.color.OLIVE_DRAB)
+
+        # school building
+        rect_filled(575, 290, 340, 250, arcade.color.SLATE_GRAY)
+        rect_filled(575, 430, 360, 84, arcade.color.DARK_RED)
+        rect_outline(575, 290, 340, 250, arcade.color.BLACK, 3)
+        rect_outline(575, 430, 360, 84, arcade.color.BLACK, 3)
+
+        # windows and door
+        for wx in (510, 575, 640):
+            for wy in (345, 300):
+                rect_filled(wx, wy, 34, 34, arcade.color.LIGHT_BLUE)
+                rect_outline(wx, wy, 34, 34, arcade.color.BLACK, 2)
+        rect_filled(575, 205, 64, 92, arcade.color.BROWN_NOSE)
+        rect_outline(575, 205, 64, 92, arcade.color.BLACK, 2)
+        rect_filled(575, 250, 14, 14, arcade.color.BLACK)
+
+        # gate and path
+        rect_filled(GATE_X, GATE_Y - 10, 110, 16, arcade.color.BROWN_NOSE)
+        rect_outline(GATE_X, GATE_Y - 10, 110, 16, arcade.color.BLACK, 2)
+        rect_filled(620, 120, 120, 28, arcade.color.DIM_GRAY)
+        rect_filled(730, 120, 110, 28, arcade.color.DIM_GRAY)
+
+        # cloud blocks
+        for cx, cy in ((120, 520), (180, 500), (650, 530), (710, 505)):
+            rect_filled(cx, cy, 34, 18, arcade.color.WHITE)
+
+        arcade.draw_text("The Daily Grind", 22, 515, arcade.color.BLACK, 20, bold=True)
+
     def draw_player(self):
-        rect_filled(self.player_x, self.player_y, PLAYER_SIZE, PLAYER_SIZE * 1.2, self.player_color)
-        rect_outline(self.player_x, self.player_y, PLAYER_SIZE, PLAYER_SIZE * 1.2, arcade.color.WHITE, 2)
+        draw_pixel_art(self.player_x, self.player_y + 3, 9, PLAYER_PATTERN, PLAYER_PALETTE)
+        rect_outline(self.player_x, self.player_y + 5, 82, 96, arcade.color.WHITE, 1)
 
     def draw_hud_text(self):
         arcade.draw_text("Patience:", 20, 560, arcade.color.BLACK, 14)
@@ -263,28 +317,13 @@ class MyGame(arcade.Window):
     def draw_conversation_box(self):
         dialog_cx = SCREEN_WIDTH / 2
         dialog_cy = 115
-        rect_filled(dialog_cx, dialog_cy, 760, 180, arcade.color.WHITE_SMOKE)
+        rect_filled(dialog_cx, dialog_cy, 760, 180, arcade.color.WHITESMOKE)
         rect_outline(dialog_cx, dialog_cy, 760, 180, arcade.color.BLACK, 2)
 
-        if self.drawing_texture:
-            img_x = 120
-            img_y = dialog_cy + 8
-            img_w = 150
-            img_h = 110
-            try:
-                arcade.draw_texture_rectangle(img_x, img_y, img_w, img_h, self.drawing_texture)
-            except AttributeError:
-                try:
-                    sprite = arcade.Sprite(self.drawing_path)
-                    sprite.center_x = img_x
-                    sprite.center_y = img_y
-                    sprite.width = img_w
-                    sprite.height = img_h
-                    sprite.draw()
-                except Exception:
-                    pass
+        # NPC portrait as chunky pixel art
+        self.draw_npc_portrait(112, 115)
 
-        text_x = 220
+        text_x = 200
         arcade.draw_text(self.current_npc, text_x, 230, arcade.color.DARK_BLUE_GRAY, 16, bold=True)
         arcade.draw_text(
             self.dialogue_text,
@@ -310,11 +349,30 @@ class MyGame(arcade.Window):
         arcade.draw_text(
             self.feedback_message,
             20,
-            300,
+            295,
             arcade.color.DARK_RED,
             14,
             italic=True,
         )
+
+    def draw_npc_portrait(self, cx, cy):
+        portrait = [
+            "...HHHH...",
+            "..HSSSSH..",
+            ".HSSSSSSH.",
+            ".HSSHHSSH.",
+            ".HSSSSSSH.",
+            "..HCCCCH..",
+            "..HCCCCH..",
+            "...HHHH...",
+        ]
+        palette = {
+            ".": None,
+            "H": arcade.color.BLACK,
+            "S": arcade.color.PEACH,
+            "C": arcade.color.DARK_BLUE,
+        }
+        draw_pixel_art(cx, cy, 10, portrait, palette)
 
     def draw_center_banner(self, text):
         rect_filled(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 520, 120, arcade.color.WHITE_SMOKE)
