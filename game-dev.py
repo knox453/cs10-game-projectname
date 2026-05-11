@@ -34,26 +34,26 @@ class MyGameView(arcade.View):
 
         # --- 1. Draw the Background (Based on your sketches) ---
         # School building
-        arcade.draw_rectangle_filled(600, 400, 300, 400, arcade.color.GRAY)
+        arcade.draw_lrbt_rectangle_filled(450, 750, 200, 600, arcade.color.GRAY)
         arcade.draw_triangle_filled(450, 600, 750, 600, 600, 700, arcade.color.DARK_RED)
 
         # Road
-        arcade.draw_rectangle_filled(400, 50, 800, 100, arcade.color.BLACK_OLIVE)
+        arcade.draw_lrbt_rectangle_filled(0, 800, 0, 100, arcade.color.BLACK_OLIVE)
 
         # --- 2. Draw UI / Patience Bar ---
         arcade.draw_text("Patience:", 20, 560, arcade.color.BLACK, 14)
         # Background of bar
-        arcade.draw_rectangle_outline(180, 570, 200, 20, arcade.color.BLACK, 2)
+        arcade.draw_lrbt_rectangle_outline(80, 280, 560, 580, arcade.color.BLACK, 2)
         # Filling the bar
         bar_width = (self.patience / self.max_patience) * 200
         if bar_width > 0:
-            arcade.draw_rectangle_filled(80 + (bar_width / 2), 570, bar_width, 16, arcade.color.CRIMSON)
+            arcade.draw_lrbt_rectangle_filled(80, 80 + bar_width, 562, 578, arcade.color.CRIMSON)
 
         # --- 3. Draw Conversation Box ---
         if self.state == STATE_CONVERSATION:
             # Dialogue box
-            arcade.draw_rectangle_filled(400, 150, 760, 150, arcade.color.WHITE_SMOKE)
-            arcade.draw_rectangle_outline(400, 150, 760, 150, arcade.color.BLACK, 3)
+            arcade.draw_lrbt_rectangle_filled(20, 780, 75, 225, arcade.color.WHITE_SMOKE)
+            arcade.draw_lrbt_rectangle_outline(20, 780, 75, 225, arcade.color.BLACK, 3)
 
             # NPC Name and Text
             arcade.draw_text(f"{self.current_npc}:", 40, 200, arcade.color.DARK_BLUE_GRAY, 16, bold=True)
