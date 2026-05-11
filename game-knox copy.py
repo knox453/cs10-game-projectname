@@ -95,6 +95,7 @@ BUILDINGS = [
     Building("school", "School", "Homework talk", 570, 835, 420, 580, (137, 98, 84)),
     Building("work", "Corner Store", "After-school shift", 80, 310, 80, 250, (104, 128, 93)),
     Building("gas", "Gas Station", "Friends outside", 600, 820, 70, 250, (128, 118, 74)),
+    Building("bus", "Bus Stop", "Long wait", 350, 520, 250, 360, (95, 112, 132)),
 ]
 
 
@@ -172,6 +173,44 @@ SCENES = [
                 -18,
                 -15,
                 -10,
+                "rash",
+            ),
+        ],
+    ),
+    Scene(
+        "bus",
+        "Bus Stop: Waiting It Out",
+        "bus",
+        (
+            "The bus is late, the weather is bad, and you can already feel the day slipping. "
+            "You are stuck waiting with no good way to speed things up."
+        ),
+        [
+            Choice(
+                "Stay patient and keep your head down.",
+                "You save your energy, but the wait eats away at the little patience you had left.",
+                -14,
+                2,
+                0,
+                0,
+                "patient",
+            ),
+            Choice(
+                "Text home and try to stay calm.",
+                "At least someone knows where you are, and the waiting feels a little less alone.",
+                -10,
+                4,
+                0,
+                4,
+                "mixed",
+            ),
+            Choice(
+                "Give up and walk away.",
+                "You get out of the cold, but now you are late and the rest of the day starts behind.",
+                10,
+                -8,
+                -6,
+                -2,
                 "rash",
             ),
         ],
@@ -435,34 +474,36 @@ class GameView(arcade.View):
         hip_y = y - 16
 
         # Head and face
-        arcade.draw_circle_outline(x, head_y, 22, COLOR_STICK, 3)
-        arcade.draw_line(x - 8, head_y + 7, x - 8, head_y - 1, COLOR_STICK, 3)
-        arcade.draw_line(x + 8, head_y + 7, x + 8, head_y - 1, COLOR_STICK, 3)
-        arcade.draw_line(x - 2, head_y + 1, x - 2, head_y - 6, COLOR_STICK, 3)
-        arcade.draw_line(x - 1, head_y - 7, x + 4, head_y - 1, COLOR_STICK, 3)
-        arcade.draw_line(x - 11, head_y - 15, x + 13, head_y - 15, COLOR_STICK, 3)
+        head_radius = 17
+
+        arcade.draw_circle_outline(x, head_y, head_radius, COLOR_STICK, 2)
+        arcade.draw_line(x - 6, head_y + 5, x - 6, head_y - 1, COLOR_STICK, 2)
+        arcade.draw_line(x + 5, head_y + 5, x + 5, head_y - 1, COLOR_STICK, 2)
+        arcade.draw_line(x - 1, head_y + 1, x - 1, head_y - 4, COLOR_STICK, 2)
+        arcade.draw_line(x, head_y - 5, x + 3, head_y - 2, COLOR_STICK, 2)
+        arcade.draw_line(x - 9, head_y - 11, x + 10, head_y - 11, COLOR_STICK, 2)
 
         # Torso
-        arcade.draw_line(x, torso_top, x, torso_bottom, COLOR_STICK, 3)
+        arcade.draw_line(x, torso_top + 2, x, torso_bottom, COLOR_STICK, 2)
 
         # Backpack on the left side of the body
-        bag_left = x - 44
-        bag_right = x - 6
-        bag_top = y + 8
-        bag_bottom = y - 26
+        bag_left = x - 33
+        bag_right = x - 5
+        bag_top = y + 6
+        bag_bottom = y - 20
         arcade.draw_lrbt_rectangle_filled(bag_left, bag_right, bag_bottom, bag_top, COLOR_BAG)
-        draw_outline_lrbt(bag_left, bag_right, bag_bottom, bag_top, COLOR_STICK, 3)
-        arcade.draw_line(bag_left + 5, bag_bottom + 2, bag_left + 5, bag_top - 4, COLOR_STICK, 2)
-        arcade.draw_line(bag_left + 9, bag_top - 6, bag_right - 4, bag_bottom + 4, COLOR_BAG_HIGHLIGHT, 2)
-        arcade.draw_line(bag_left + 13, bag_bottom + 1, bag_right - 10, bag_top - 1, COLOR_BAG_HIGHLIGHT, 2)
+        draw_outline_lrbt(bag_left, bag_right, bag_bottom, bag_top, COLOR_STICK, 2)
+        arcade.draw_line(bag_left + 4, bag_bottom + 2, bag_left + 4, bag_top - 3, COLOR_STICK, 1)
+        arcade.draw_line(bag_left + 7, bag_top - 4, bag_right - 3, bag_bottom + 3, COLOR_BAG_HIGHLIGHT, 1)
+        arcade.draw_line(bag_left + 10, bag_bottom + 1, bag_right - 8, bag_top - 1, COLOR_BAG_HIGHLIGHT, 1)
 
         # Arm holding the backpack
-        arcade.draw_line(left_shoulder, torso_top, bag_right - 2, y + 4, COLOR_STICK, 3)
-        arcade.draw_line(right_shoulder, torso_top, x + 20, y - 2, COLOR_STICK, 3)
+        arcade.draw_line(left_shoulder, torso_top + 2, bag_right - 1, y + 2, COLOR_STICK, 2)
+        arcade.draw_line(right_shoulder, torso_top + 2, x + 14, y - 1, COLOR_STICK, 2)
 
         # Legs in a wide stance
-        arcade.draw_line(hip_x, hip_y, x - 26, y - 78, COLOR_STICK, 3)
-        arcade.draw_line(hip_x, hip_y, x + 34, y - 74, COLOR_STICK, 3)
+        arcade.draw_line(hip_x, hip_y, x - 20, y - 60, COLOR_STICK, 2)
+        arcade.draw_line(hip_x, hip_y, x + 26, y - 58, COLOR_STICK, 2)
 
     def draw_hud(self) -> None:
         arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 600, 650, (18, 19, 21, 245))
