@@ -29,7 +29,7 @@ class MyGame(arcade.Window):
         arcade.set_background_color(arcade.color.SKY_BLUE)
 
     def on_draw(self):
-        arcade.start_render()
+        self.clear()
 
     # --- 1. Draw the Background (Based on your sketches) ---
         # School building
