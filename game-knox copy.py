@@ -543,8 +543,7 @@ class GameView(arcade.View):
             arcade.draw_lrbt_rectangle_filled(left, right, top - 3, top, profile.accent)
             arcade.draw_lrbt_rectangle_filled(left, right, bottom, bottom + 3, (86, 82, 78))
             draw_outline_lrbt(left, right, bottom, top, (205, 209, 198), 2)
-            arcade.draw_circle_filled(left + 54, top - 62, 20, profile.accent)
-            arcade.draw_circle_outline(left + 54, top - 62, 20, COLOR_STICK, 2)
+            self.draw_profile_icon(left + 54, top - 65, profile)
             arcade.draw_text(profile.name, left + 88, top - 38, COLOR_TEXT, 17, bold=True, width=120, multiline=True)
             arcade.draw_text(profile.bio, left + 18, top - 100, COLOR_TEXT, 12, width=200, multiline=True)
             arcade.draw_text(
@@ -582,6 +581,32 @@ class GameView(arcade.View):
             12,
             anchor_x="center",
         )
+
+    def draw_profile_icon(self, x: float, y: float, profile: CharacterProfile) -> None:
+        """Draw a tiny stick figure on the intro cards."""
+
+        accent = profile.accent
+        head_y = y + 24
+        torso_top = y + 7
+        torso_bottom = y - 12
+        hip_y = y - 12
+
+        arcade.draw_circle_outline(x, head_y, 10, COLOR_STICK, 2)
+        arcade.draw_line(x - 3, head_y + 3, x - 3, head_y - 1, COLOR_STICK, 2)
+        arcade.draw_line(x + 3, head_y + 3, x + 3, head_y - 1, COLOR_STICK, 2)
+        arcade.draw_line(x - 1, head_y - 1, x - 1, head_y - 4, COLOR_STICK, 2)
+        arcade.draw_line(x - 4, head_y - 7, x + 5, head_y - 7, COLOR_STICK, 2)
+        arcade.draw_line(x, torso_top, x, torso_bottom, COLOR_STICK, 2)
+
+        # Small backpack/shoulder detail so each figure feels lived-in.
+        arcade.draw_lrbt_rectangle_filled(x - 16, x - 6, y - 8, y + 4, accent)
+        draw_outline_lrbt(x - 16, x - 6, y - 8, y + 4, COLOR_STICK, 1)
+        arcade.draw_line(x - 8, y + 1, x - 2, y + 4, accent, 1)
+
+        arcade.draw_line(x - 1, torso_top, x - 10, y - 2, COLOR_STICK, 2)
+        arcade.draw_line(x + 1, torso_top, x + 9, y - 1, COLOR_STICK, 2)
+        arcade.draw_line(x, hip_y, x - 9, y - 24, COLOR_STICK, 2)
+        arcade.draw_line(x, hip_y, x + 10, y - 22, COLOR_STICK, 2)
 
     def draw_world(self) -> None:
         arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT, COLOR_BG)
