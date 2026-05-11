@@ -484,6 +484,10 @@ class GameView(arcade.View):
         self.family = 50
         self.character_select = True
 
+    def select_character(self, index: int) -> None:
+        self.selected_character = index
+        self.character_select = False
+
     def on_draw(self) -> None:
         self.clear()
         self.draw_world()
