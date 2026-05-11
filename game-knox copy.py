@@ -402,7 +402,7 @@ class GameView(arcade.View):
         self.last_result = ""
         self.game_over = False
         self.ending_text = ""
-        self.patience = 55
+        self.patience = 100
         self.stability = 50
         self.grades = 50
         self.family = 50
@@ -493,7 +493,7 @@ class GameView(arcade.View):
         self.last_result = ""
         self.game_over = False
         self.ending_text = ""
-        self.patience = 55
+        self.patience = 100
         self.stability = 50
         self.grades = 50
         self.family = 50
@@ -726,7 +726,7 @@ class GameView(arcade.View):
             title = f"One Long Day - {self.selected_profile.name}"
         arcade.draw_text(title, 18, 620, COLOR_TEXT, 18, bold=True)
         arcade.draw_text(f"Day step {self.scene_index + 1} of {len(SCENES)}", 18, 604, COLOR_MUTED, 10)
-        self.draw_meter("Morality", self.patience, 180, COLOR_GOOD)
+        self.draw_meter("Morality", self.patience, 180, COLOR_WARN)
         self.draw_meter("Stability", self.stability, 365, COLOR_GOOD)
         self.draw_meter("Grades", self.grades, 550, (104, 156, 212))
         self.draw_meter("Family", self.family, 735, (207, 134, 181))
@@ -821,7 +821,7 @@ class GameView(arcade.View):
         self.last_result = ""
         self.game_over = False
         self.ending_text = ""
-        self.patience = max(0, min(100, 55 + profile.patience_bonus))
+        self.patience = max(0, min(100, 100 + profile.patience_bonus))
         self.stability = max(0, min(100, 50 + profile.stability_bonus))
         self.grades = max(0, min(100, 50 + profile.grades_bonus))
         self.family = max(0, min(100, 50 + profile.family_bonus))
