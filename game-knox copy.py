@@ -30,6 +30,19 @@ COLOR_LOCKED = (96, 96, 96)
 COLOR_GOOD = (91, 169, 121)
 COLOR_WARN = (218, 171, 78)
 COLOR_BAD = (198, 83, 78)
+COLOR_TARGET = (232, 213, 132)
+
+
+def draw_outline_lrbt(left: float, right: float, bottom: float, top: float, color: tuple[int, int, int], border_width: int = 1) -> None:
+    """Draw a rectangle outline while tolerating Arcade naming differences."""
+
+    try:
+        arcade.draw_lrbt_rectangle_outline(left, right, bottom, top, color, border_width)
+    except AttributeError:
+        try:
+            arcade.draw_lrtb_rectangle_outline(left, right, top, bottom, color, border_width)
+        except AttributeError:
+            arcade.draw_rectangle_outline((left + right) / 2, (bottom + top) / 2, right - left, top - bottom, color, border_width)
 
 
 @dataclass
@@ -287,7 +300,7 @@ class GameView(arcade.View):
         self.player_y = 493
         self.keys_pressed: set[int] = set()
         self.scene_index = 0
-        self.current_scene: Scene | None = SCENES[0]
+        self.current_scene: Scene | None = None
         self.awaiting_continue = False
         self.last_result = ""
         self.game_over = False
@@ -358,7 +371,7 @@ class GameView(arcade.View):
         self.player_y = 493
         self.keys_pressed.clear()
         self.scene_index = 0
-        self.current_scene = SCENES[0]
+        self.current_scene = None
         self.awaiting_continue = False
         self.last_result = ""
         self.game_over = False
@@ -390,9 +403,15 @@ class GameView(arcade.View):
         arcade.draw_lrbt_rectangle_filled(397, 410, 0, SCREEN_HEIGHT, COLOR_SIDEWALK)
         arcade.draw_lrbt_rectangle_filled(490, 503, 0, SCREEN_HEIGHT, COLOR_SIDEWALK)
 
+        target_location = None
+        if not self.game_over and self.scene_index < len(SCENES):
+            target_location = SCENES[self.scene_index].location
+
         for building in BUILDINGS:
             arcade.draw_lrbt_rectangle_filled(building.left, building.right, building.bottom, building.top, building.color)
             arcade.draw_lrbt_rectangle_filled(building.left, building.right, building.top - 16, building.top, (38, 39, 41))
+            if building.key == target_location:
+                draw_outline_lrbt(building.left, building.right, building.bottom, building.top, COLOR_TARGET, 4)
             arcade.draw_text(building.name, building.left + 10, building.top - 12, COLOR_TEXT, 12)
             arcade.draw_text(building.prompt, building.left + 10, building.bottom + 12, (232, 225, 176), 10)
 
@@ -402,6 +421,7 @@ class GameView(arcade.View):
     def draw_hud(self) -> None:
         arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 600, 650, (18, 19, 21, 245))
         arcade.draw_text("One Long Day", 18, 620, COLOR_TEXT, 18, bold=True)
+        arcade.draw_text(f"Day step {self.scene_index + 1} of {len(SCENES)}", 18, 604, COLOR_MUTED, 10)
         self.draw_meter("Patience", self.patience, 180, COLOR_WARN)
         self.draw_meter("Stability", self.stability, 365, COLOR_GOOD)
         self.draw_meter("Grades", self.grades, 550, (104, 156, 212))
@@ -418,6 +438,7 @@ class GameView(arcade.View):
         assert self.current_scene is not None
         self.draw_panel(78, 822, 92, 558)
         arcade.draw_text(self.current_scene.title, 108, 515, COLOR_TEXT, 24, bold=True)
+        arcade.draw_text(self.location_name(self.current_scene.location), 108, 494, COLOR_MUTED, 12)
         arcade.draw_text(
             self.current_scene.situation,
             108,
@@ -466,11 +487,14 @@ class GameView(arcade.View):
         arcade.draw_text("Restart", (left + right) / 2, bottom + 18, COLOR_TEXT, 16, anchor_x="center", bold=True)
 
     def draw_location_hint(self) -> None:
+        if self.scene_index >= len(SCENES):
+            return
+
         scene = SCENES[self.scene_index]
         building = self.get_building(scene.location)
         near = self.near_building(building)
-        text = f"Next: go to {building.name} for {scene.title}. "
-        text += "Press E." if near else "Use WASD or arrow keys to move."
+        text = f"Next: {scene.title} at {building.name}. "
+        text += "Press E to enter." if near else "Walk to the highlighted place."
         arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 0, 42, (18, 19, 21, 230))
         arcade.draw_text(text, SCREEN_WIDTH / 2, 14, COLOR_TEXT, 13, anchor_x="center")
 
@@ -495,6 +519,9 @@ class GameView(arcade.View):
         if self.patience > 0:
             return False
         return index != 2
+
+    def location_name(self, key: str) -> str:
+        return self.get_building(key).name
 
     def choice_color(self, choice: Choice) -> tuple[int, int, int]:
         if choice.kind == "patient":
@@ -565,6 +592,8 @@ class GameView(arcade.View):
             Patience {self.patience} | Stability {self.stability} | Grades {self.grades} | Family {self.family}
 
             Your lowest area was {weakest[0]}. That does not mean you made one bad choice. It means the same choice can cost more when money, time, rest, and support are all limited.
+
+            Average wellbeing: {average:.1f}/100
             """
         ).strip()
         self.ending_text = wrapped_stats
