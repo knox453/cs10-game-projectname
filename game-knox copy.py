@@ -410,6 +410,15 @@ class GameView(arcade.View):
         arcade.set_background_color(self.background_color)
 
     def on_key_press(self, key: int, modifiers: int) -> None:
+        if not self.started:
+            if key in {arcade.key.KEY_1, arcade.key.NUM_1}:
+                self.begin_game(0)
+            elif key in {arcade.key.KEY_2, arcade.key.NUM_2}:
+                self.begin_game(1)
+            elif key in {arcade.key.KEY_3, arcade.key.NUM_3}:
+                self.begin_game(2)
+            return
+
         if key == arcade.key.R and self.game_over:
             self.setup()
             return
@@ -424,6 +433,13 @@ class GameView(arcade.View):
         self.keys_pressed.discard(key)
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> None:
+        if not self.started:
+            for index, left, right, bottom, top in self.profile_buttons:
+                if left <= x <= right and bottom <= y <= top:
+                    self.begin_game(index)
+                    return
+            return
+
         if self.game_over:
             left, right, bottom, top = self.restart_button
             if left <= x <= right and bottom <= y <= top:
@@ -443,7 +459,7 @@ class GameView(arcade.View):
                 return
 
     def on_update(self, delta_time: float) -> None:
-        if self.current_scene or self.game_over:
+        if not self.started or self.current_scene or self.game_over:
             return
 
         dx = 0
@@ -461,8 +477,11 @@ class GameView(arcade.View):
         self.player_y = max(25, min(SCREEN_HEIGHT - 25, self.player_y + dy))
 
     def setup(self) -> None:
+        self.started = False
+        self.selected_profile = None
         self.player_x = 145
         self.player_y = 493
+        self.player_accent = (82, 178, 154)
         self.keys_pressed.clear()
         self.scene_index = 0
         self.current_scene = None
@@ -474,9 +493,13 @@ class GameView(arcade.View):
         self.stability = 50
         self.grades = 50
         self.family = 50
+        self.profile_buttons.clear()
 
     def on_draw(self) -> None:
         self.clear()
+        if not self.started:
+            self.draw_intro()
+            return
         self.draw_world()
         self.draw_hud()
         if self.game_over:
@@ -487,6 +510,78 @@ class GameView(arcade.View):
             self.draw_result()
         else:
             self.draw_location_hint()
+
+    def draw_intro(self) -> None:
+        arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT, COLOR_BG)
+        arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 580, 650, (18, 19, 21, 245))
+        arcade.draw_text("One Long Day", SCREEN_WIDTH / 2, 610, COLOR_TEXT, 28, anchor_x="center", bold=True)
+        arcade.draw_text(
+            "Pick who you are before the day starts.",
+            SCREEN_WIDTH / 2,
+            582,
+            COLOR_MUTED,
+            14,
+            anchor_x="center",
+        )
+        arcade.draw_text(
+            "Each version begins the same story with a slightly different starting energy and support.",
+            SCREEN_WIDTH / 2,
+            556,
+            COLOR_MUTED,
+            11,
+            anchor_x="center",
+        )
+
+        card_lefts = [44, 312, 580]
+        self.profile_buttons.clear()
+        for index, profile in enumerate(CHARACTER_PROFILES):
+            left = card_lefts[index]
+            right = left + 236
+            top = 500
+            bottom = 150
+            arcade.draw_lrbt_rectangle_filled(left, right, bottom, top, (28, 30, 34, 245))
+            arcade.draw_lrbt_rectangle_filled(left, right, top - 3, top, profile.accent)
+            arcade.draw_lrbt_rectangle_filled(left, right, bottom, bottom + 3, (86, 82, 78))
+            arcade.draw_lrbt_rectangle_outline(left, right, bottom, top, (205, 209, 198), 2)
+            arcade.draw_circle_filled(left + 54, top - 62, 20, profile.accent)
+            arcade.draw_circle_outline(left + 54, top - 62, 20, COLOR_STICK, 2)
+            arcade.draw_text(profile.name, left + 88, top - 38, COLOR_TEXT, 17, bold=True, width=120, multiline=True)
+            arcade.draw_text(profile.bio, left + 18, top - 100, COLOR_TEXT, 12, width=200, multiline=True)
+            arcade.draw_text(
+                f"1. Patience {profile.patience_bonus:+}  2. Stability {profile.stability_bonus:+}",
+                left + 18,
+                top - 210,
+                COLOR_MUTED,
+                10,
+                width=200,
+                multiline=True,
+            )
+            arcade.draw_text(
+                f"3. Grades {profile.grades_bonus:+}  4. Family {profile.family_bonus:+}",
+                left + 18,
+                top - 228,
+                COLOR_MUTED,
+                10,
+                width=200,
+                multiline=True,
+            )
+            arcade.draw_text(
+                f"Press {index + 1} or click",
+                left + 18,
+                bottom + 18,
+                COLOR_TEXT,
+                11,
+            )
+            self.profile_buttons.append((index, left, right, bottom, top))
+
+        arcade.draw_text(
+            "The choice is just a starting point, not a judgment.",
+            SCREEN_WIDTH / 2,
+            106,
+            COLOR_MUTED,
+            12,
+            anchor_x="center",
+        )
 
     def draw_world(self) -> None:
         arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT, COLOR_BG)
