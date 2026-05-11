@@ -542,7 +542,7 @@ class GameView(arcade.View):
             arcade.draw_lrbt_rectangle_filled(left, right, bottom, top, (28, 30, 34, 245))
             arcade.draw_lrbt_rectangle_filled(left, right, top - 3, top, profile.accent)
             arcade.draw_lrbt_rectangle_filled(left, right, bottom, bottom + 3, (86, 82, 78))
-            arcade.draw_lrbt_rectangle_outline(left, right, bottom, top, (205, 209, 198), 2)
+            draw_outline_lrbt(left, right, bottom, top, (205, 209, 198), 2)
             arcade.draw_circle_filled(left + 54, top - 62, 20, profile.accent)
             arcade.draw_circle_outline(left + 54, top - 62, 20, COLOR_STICK, 2)
             arcade.draw_text(profile.name, left + 88, top - 38, COLOR_TEXT, 17, bold=True, width=120, multiline=True)
@@ -641,8 +641,9 @@ class GameView(arcade.View):
         arcade.draw_lrbt_rectangle_filled(bag_left, bag_right, bag_bottom, bag_top, COLOR_BAG)
         draw_outline_lrbt(bag_left, bag_right, bag_bottom, bag_top, COLOR_STICK, 2)
         arcade.draw_line(bag_left + 4, bag_bottom + 2, bag_left + 4, bag_top - 3, COLOR_STICK, 1)
-        arcade.draw_line(bag_left + 7, bag_top - 4, bag_right - 3, bag_bottom + 3, COLOR_BAG_HIGHLIGHT, 1)
+        arcade.draw_line(bag_left + 7, bag_top - 4, bag_right - 3, bag_bottom + 3, self.player_accent, 1)
         arcade.draw_line(bag_left + 10, bag_bottom + 1, bag_right - 8, bag_top - 1, COLOR_BAG_HIGHLIGHT, 1)
+        arcade.draw_line(x - 6, y + 6, x + 5, y + 1, self.player_accent, 2)
 
         # Arm holding the backpack
         arcade.draw_line(left_shoulder, torso_top + 2, bag_right - 1, y + 2, COLOR_STICK, 2)
@@ -654,7 +655,10 @@ class GameView(arcade.View):
 
     def draw_hud(self) -> None:
         arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 600, 650, (18, 19, 21, 245))
-        arcade.draw_text("One Long Day", 18, 620, COLOR_TEXT, 18, bold=True)
+        title = "One Long Day"
+        if self.selected_profile:
+            title = f"One Long Day - {self.selected_profile.name}"
+        arcade.draw_text(title, 18, 620, COLOR_TEXT, 18, bold=True)
         arcade.draw_text(f"Day step {self.scene_index + 1} of {len(SCENES)}", 18, 604, COLOR_MUTED, 10)
         self.draw_meter("Patience", self.patience, 180, COLOR_WARN)
         self.draw_meter("Stability", self.stability, 365, COLOR_GOOD)
@@ -736,6 +740,25 @@ class GameView(arcade.View):
         arcade.draw_lrbt_rectangle_filled(left, right, bottom, top, COLOR_PANEL)
         arcade.draw_lrbt_rectangle_filled(left, right, top - 3, top, COLOR_PANEL_BORDER)
         arcade.draw_lrbt_rectangle_filled(left, right, bottom, bottom + 3, (80, 82, 78))
+
+    def begin_game(self, profile_index: int) -> None:
+        profile = CHARACTER_PROFILES[profile_index]
+        self.selected_profile = profile
+        self.player_accent = profile.accent
+        self.started = True
+        self.player_x = 145
+        self.player_y = 493
+        self.keys_pressed.clear()
+        self.scene_index = 0
+        self.current_scene = None
+        self.awaiting_continue = False
+        self.last_result = ""
+        self.game_over = False
+        self.ending_text = ""
+        self.patience = max(0, min(100, 55 + profile.patience_bonus))
+        self.stability = max(0, min(100, 50 + profile.stability_bonus))
+        self.grades = max(0, min(100, 50 + profile.grades_bonus))
+        self.family = max(0, min(100, 50 + profile.family_bonus))
 
     def choose(self, index: int) -> None:
         if not self.current_scene or self.choice_locked(index):
