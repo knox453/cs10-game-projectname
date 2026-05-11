@@ -202,7 +202,7 @@ SCENES = [
         [
             Choice(
                 "Apologize and ask for one more night.",
-                "The teacher gives you a short extension, but you spend patience you were trying to save.",
+                "The teacher gives you a short extension, but you spend moral resolve you were trying to save.",
                 -18,
                 4,
                 12,
@@ -240,7 +240,7 @@ SCENES = [
         [
             Choice(
                 "Stay patient and keep your head down.",
-                "You save your energy, but the wait eats away at the little patience you had left.",
+                "You save your energy, but the wait eats away at the little moral resolve you had left.",
                 -14,
                 2,
                 0,
@@ -551,7 +551,7 @@ class GameView(arcade.View):
             arcade.draw_text(profile.name, left + 88, top - 38, COLOR_TEXT, 17, bold=True, width=120, multiline=True)
             arcade.draw_text(profile.bio, left + 18, top - 100, COLOR_TEXT, 12, width=200, multiline=True)
             arcade.draw_text(
-                f"1. Patience {profile.patience_bonus:+}  2. Stability {profile.stability_bonus:+}",
+                f"1. Morality {profile.patience_bonus:+}  2. Stability {profile.stability_bonus:+}",
                 left + 18,
                 top - 210,
                 COLOR_MUTED,
@@ -682,6 +682,13 @@ class GameView(arcade.View):
         # Head and face
         head_radius = 17
 
+        shirt_left = x - 11
+        shirt_right = x + 11
+        shirt_top = y + 13
+        shirt_bottom = y - 9
+        arcade.draw_lrbt_rectangle_filled(shirt_left, shirt_right, shirt_bottom, shirt_top, self.player_accent)
+        draw_outline_lrbt(shirt_left, shirt_right, shirt_bottom, shirt_top, COLOR_STICK, 2)
+
         arcade.draw_circle_outline(x, head_y, head_radius, COLOR_STICK, 2)
         arcade.draw_line(x - 6, head_y + 5, x - 6, head_y - 1, COLOR_STICK, 2)
         arcade.draw_line(x + 5, head_y + 5, x + 5, head_y - 1, COLOR_STICK, 2)
@@ -709,8 +716,8 @@ class GameView(arcade.View):
         arcade.draw_line(right_shoulder, torso_top + 2, x + 14, y - 1, COLOR_STICK, 2)
 
         # Legs in a wide stance
-        arcade.draw_line(hip_x, hip_y, x - 20, y - 60, COLOR_STICK, 2)
-        arcade.draw_line(hip_x, hip_y, x + 26, y - 58, COLOR_STICK, 2)
+        arcade.draw_line(hip_x, hip_y, x - 20, y - 60, self.player_accent, 2)
+        arcade.draw_line(hip_x, hip_y, x + 26, y - 58, self.player_accent, 2)
 
     def draw_hud(self) -> None:
         arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 600, 650, (18, 19, 21, 245))
