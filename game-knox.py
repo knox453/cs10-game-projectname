@@ -623,8 +623,12 @@ class MyGame(arcade.Window):
         if dx or dy:
             self.player_x += dx * MOVE_SPEED * delta_time
             self.player_y += dy * MOVE_SPEED * delta_time
-            self.player_x = clamp(self.player_x, PLAYER_SIZE / 2, SCREEN_WIDTH - PLAYER_SIZE / 2)
-            self.player_y = clamp(self.player_y, PLAYER_SIZE / 2 + 100, SCREEN_HEIGHT - PLAYER_SIZE / 2)
+            self.player_x = clamp(self.player_x, PLAYER_SIZE / 2, WORLD_WIDTH - PLAYER_SIZE / 2)
+            self.player_y = clamp(self.player_y, PLAYER_SIZE / 2 + 100, WORLD_HEIGHT - PLAYER_SIZE / 2)
+
+        camera_x = clamp(self.player_x, SCREEN_WIDTH / 2, WORLD_WIDTH - SCREEN_WIDTH / 2)
+        camera_y = clamp(self.player_y + 40, SCREEN_HEIGHT / 2, WORLD_HEIGHT - SCREEN_HEIGHT / 2)
+        self.world_camera.position = (camera_x, camera_y)
 
     def on_key_press(self, key, modifiers):
         self.keys_down.add(key)
