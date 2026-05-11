@@ -90,12 +90,60 @@ class Scene:
     choices: list[Choice]
 
 
+@dataclass
+class CharacterProfile:
+    """A small personalization choice for the opening screen."""
+
+    key: str
+    name: str
+    bio: str
+    patience_bonus: int
+    stability_bonus: int
+    grades_bonus: int
+    family_bonus: int
+    accent: tuple[int, int, int]
+
+
 BUILDINGS = [
     Building("home", "Apartment", "Start / Finish", 55, 220, 410, 575, (118, 122, 132)),
     Building("school", "School", "Homework talk", 570, 835, 420, 580, (137, 98, 84)),
     Building("work", "Corner Store", "After-school shift", 80, 310, 80, 250, (104, 128, 93)),
     Building("gas", "Gas Station", "Friends outside", 600, 820, 70, 250, (128, 118, 74)),
     Building("bus", "Bus Stop", "Long wait", 350, 520, 250, 360, (95, 112, 132)),
+]
+
+
+CHARACTER_PROFILES = [
+    CharacterProfile(
+        "planner",
+        "The Quiet Planner",
+        "Keeps notes, thinks ahead, and tries to hold the day together before it falls apart.",
+        5,
+        0,
+        8,
+        2,
+        (88, 160, 148),
+    ),
+    CharacterProfile(
+        "helper",
+        "The Family Helper",
+        "Helps at home and at work, but school often gets pushed to the edge of the day.",
+        2,
+        6,
+        -2,
+        8,
+        (173, 136, 86),
+    ),
+    CharacterProfile(
+        "connector",
+        "The Social Connector",
+        "Knows people everywhere, leans on friends for energy, and has a hard time staying out of trouble.",
+        4,
+        3,
+        -4,
+        4,
+        (143, 114, 179),
+    ),
 ]
 
 
@@ -338,8 +386,11 @@ class GameView(arcade.View):
     def __init__(self) -> None:
         super().__init__()
         self.background_color = COLOR_BG
+        self.started = False
+        self.selected_profile: CharacterProfile | None = None
         self.player_x = 145
         self.player_y = 493
+        self.player_accent = (82, 178, 154)
         self.keys_pressed: set[int] = set()
         self.scene_index = 0
         self.current_scene: Scene | None = None
@@ -352,6 +403,7 @@ class GameView(arcade.View):
         self.grades = 50
         self.family = 50
         self.choice_buttons: list[tuple[int, int, int, int, int]] = []
+        self.profile_buttons: list[tuple[int, int, int, int, int]] = []
         self.restart_button = (350, 550, 44, 92)
 
     def on_show_view(self) -> None:
