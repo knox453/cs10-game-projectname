@@ -137,10 +137,64 @@ class MyGame(arcade.Window):
         self.player_x = 120
         self.player_y = 130
 
-        self.current_turn = 0
-        self.encounters = [
+        self.task_index = 0
+        self.tasks = [
             {
+                "name": "Pack Backpack",
+                "npc": "Your Desk",
+                "location": (145, 120),
+                "radius": 70,
+                "prompt": "Your backpack is open and messy. What do you do first?",
+                "options": [
+                    "[1] Pack neatly",
+                    "[2] Rush it",
+                    "[3] Leave a mess",
+                ],
+                "outcomes": [
+                    (1, "You pack everything neatly. Nice start."),
+                    (-1, "You rush and forget your charger."),
+                    (-2, "You leave a mess and waste time later."),
+                ],
+            },
+            {
+                "name": "Eat Breakfast",
+                "npc": "Kitchen Table",
+                "location": (185, 215),
+                "radius": 70,
+                "prompt": "You are running late, but breakfast is still on the table.",
+                "options": [
+                    "[1] Eat up",
+                    "[2] Grab a snack",
+                    "[3] Skip it",
+                ],
+                "outcomes": [
+                    (1, "You eat breakfast and feel a little steadier."),
+                    (0, "You grab a snack for the road."),
+                    (-2, "Skipping breakfast makes the morning harder."),
+                ],
+            },
+            {
+                "name": "Catch the Bus",
+                "npc": "Bus Stop",
+                "location": (300, 140),
+                "radius": 75,
+                "prompt": "The bus is pulling in. How do you handle it?",
+                "options": [
+                    "[1] Wait patiently",
+                    "[2] Sprint for it",
+                    "[3] Argue with the driver",
+                ],
+                "outcomes": [
+                    (1, "You wait it out and make it aboard calm."),
+                    (-1, "You make it on, but you're winded."),
+                    (-2, "The driver is not impressed by the attitude."),
+                ],
+            },
+            {
+                "name": "Talk to Teacher",
                 "npc": "Mr. Henderson",
+                "location": (660, 150),
+                "radius": GATE_RADIUS,
                 "prompt": "Late again? And no essay? What do you have to say?",
                 "options": [
                     "[1] Apologize",
@@ -154,7 +208,10 @@ class MyGame(arcade.Window):
                 ],
             },
             {
+                "name": "Hall Pass Check",
                 "npc": "Hall Monitor",
+                "location": (540, 235),
+                "radius": 70,
                 "prompt": "Hall pass check. Why are you still outside class?",
                 "options": [
                     "[1] Be honest",
@@ -168,7 +225,10 @@ class MyGame(arcade.Window):
                 ],
             },
             {
+                "name": "Turn In Homework",
                 "npc": "Ms. Rivera",
+                "location": (645, 240),
+                "radius": 80,
                 "prompt": "You made it to homeroom. Last chance: finish strong?",
                 "options": [
                     "[1] Focus up",
@@ -194,30 +254,41 @@ class MyGame(arcade.Window):
     def reset_game(self):
         self.patience = 10
         self.state = STATE_WALKING
-        self.feedback_message = "Walk to the school gate and press E."
+        self.feedback_message = "Start your day and work through the tasks."
         self.player_x = 120
         self.player_y = 130
-        self.current_turn = 0
+        self.task_index = 0
         self.current_npc = ""
         self.dialogue_text = ""
         self.options = []
         self.keys_down.clear()
 
+    def current_task(self):
+        if self.task_index < len(self.tasks):
+            return self.tasks[self.task_index]
+        return None
+
     def start_conversation(self):
+        task = self.current_task()
+        if task is None:
+            return
         self.state = STATE_CONVERSATION
-        self.current_turn = 0
         self.set_current_encounter_text()
         self.feedback_message = "Press 1, 2, or 3 to respond."
 
     def set_current_encounter_text(self):
-        encounter = self.encounters[self.current_turn]
-        self.current_npc = encounter["npc"]
-        self.dialogue_text = encounter["prompt"]
-        self.options = encounter["options"]
+        task = self.current_task()
+        if task is None:
+            return
+        self.current_npc = task["npc"]
+        self.dialogue_text = task["prompt"]
+        self.options = task["options"]
 
     def finish_encounter(self, choice):
-        encounter = self.encounters[self.current_turn]
-        delta, response = encounter["outcomes"][choice - 1]
+        task = self.current_task()
+        if task is None:
+            return
+        delta, response = task["outcomes"][choice - 1]
         self.patience = clamp(self.patience + delta, 0, self.max_patience)
         self.feedback_message = response
 
@@ -226,10 +297,10 @@ class MyGame(arcade.Window):
             self.feedback_message = response + " You ran out of patience."
             return
 
-        self.current_turn += 1
-        if self.current_turn >= len(self.encounters):
+        self.task_index += 1
+        if self.task_index >= len(self.tasks):
             self.state = STATE_WIN
-            self.feedback_message = "You made it through the morning. Nice work."
+            self.feedback_message = "You made it through the whole day. Nice work."
             return
 
         self.set_current_encounter_text()
@@ -251,18 +322,41 @@ class MyGame(arcade.Window):
     def draw_scene(self):
         rect_filled(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT, arcade.color.SKY_BLUE)
         self.draw_pixel_background()
+        self.draw_task_markers()
 
         if self.state == STATE_WALKING:
-            arcade.draw_text("Walk to the gate. Press E to talk.", 20, 570, arcade.color.BLACK, 14, bold=True)
-            if self.distance_to_gate() <= GATE_RADIUS:
-                arcade.draw_text("Press E", GATE_X - 30, GATE_Y + 35, arcade.color.DARK_GREEN, 14, bold=True)
+            task = self.current_task()
+            task_name = task["name"] if task else "Done"
+            arcade.draw_text(
+                f"Task {self.task_index + 1}/{len(self.tasks)}: {task_name}",
+                20,
+                570,
+                arcade.color.BLACK,
+                14,
+                bold=True,
+            )
+            if task and self.distance_to_task(task) <= task["radius"]:
+                arcade.draw_text("Press E", task["location"][0] - 30, task["location"][1] + 35, arcade.color.DARK_GREEN, 14, bold=True)
 
         self.draw_player()
 
     def draw_pixel_background(self):
-        # ground
+        # yard and road
         rect_filled(400, 52, 800, 104, arcade.color.DARK_OLIVE_GREEN)
         rect_filled(400, 90, 800, 18, arcade.color.OLIVE_DRAB)
+        rect_filled(395, 150, 790, 26, arcade.color.DIM_GRAY)
+
+        # house
+        rect_filled(150, 230, 170, 130, arcade.color.SLATE_GRAY)
+        rect_filled(150, 305, 190, 54, arcade.color.DARK_RED)
+        rect_outline(150, 230, 170, 130, arcade.color.BLACK, 3)
+        rect_outline(150, 305, 190, 54, arcade.color.BLACK, 3)
+        rect_filled(150, 195, 42, 58, arcade.color.BROWN_NOSE)
+        rect_outline(150, 195, 42, 58, arcade.color.BLACK, 2)
+        rect_filled(110, 245, 30, 24, arcade.color.LIGHT_BLUE)
+        rect_filled(190, 245, 30, 24, arcade.color.LIGHT_BLUE)
+        rect_outline(110, 245, 30, 24, arcade.color.BLACK, 2)
+        rect_outline(190, 245, 30, 24, arcade.color.BLACK, 2)
 
         # school building
         rect_filled(575, 290, 340, 250, arcade.color.SLATE_GRAY)
@@ -284,12 +378,30 @@ class MyGame(arcade.Window):
         rect_outline(GATE_X, GATE_Y - 10, 110, 16, arcade.color.BLACK, 2)
         rect_filled(620, 120, 120, 28, arcade.color.DIM_GRAY)
         rect_filled(730, 120, 110, 28, arcade.color.DIM_GRAY)
+        rect_filled(280, 140, 70, 24, arcade.color.DARK_BLUE)
+        rect_outline(280, 140, 70, 24, arcade.color.BLACK, 2)
+        arcade.draw_text("BUS", 258, 132, arcade.color.WHITE, 14, bold=True)
 
         # cloud blocks
         for cx, cy in ((120, 520), (180, 500), (650, 530), (710, 505)):
             rect_filled(cx, cy, 34, 18, arcade.color.WHITE)
 
         arcade.draw_text("The Daily Grind", 22, 515, arcade.color.BLACK, 20, bold=True)
+
+    def draw_task_markers(self):
+        if self.state == STATE_WIN:
+            return
+        for index, task in enumerate(self.tasks):
+            x, y = task["location"]
+            if index < self.task_index:
+                marker_color = arcade.color.DARK_GREEN
+            elif index == self.task_index:
+                marker_color = arcade.color.GOLD
+            else:
+                marker_color = arcade.color.LIGHT_GRAY
+            rect_filled(x, y + 46, 18, 18, marker_color)
+            rect_outline(x, y + 46, 18, 18, arcade.color.BLACK, 2)
+            arcade.draw_text(task["name"], x, y + 60, arcade.color.BLACK, 9, anchor_x="center")
 
     def draw_player(self):
         draw_pixel_art(self.player_x, self.player_y + 3, 9, PLAYER_PATTERN, PLAYER_PALETTE)
@@ -310,6 +422,14 @@ class MyGame(arcade.Window):
             20,
             arcade.color.BLACK,
             12,
+        )
+        arcade.draw_text(
+            f"Patience: {self.patience}/{self.max_patience}",
+            640,
+            20,
+            arcade.color.BLACK,
+            12,
+            anchor_x="left",
         )
 
     def draw_conversation_box(self):
@@ -387,6 +507,10 @@ class MyGame(arcade.Window):
     def distance_to_gate(self):
         return ((self.player_x - GATE_X) ** 2 + (self.player_y - GATE_Y) ** 2) ** 0.5
 
+    def distance_to_task(self, task):
+        x, y = task["location"]
+        return ((self.player_x - x) ** 2 + (self.player_y - y) ** 2) ** 0.5
+
     def on_update(self, delta_time):
         if self.state != STATE_WALKING:
             return
@@ -416,7 +540,8 @@ class MyGame(arcade.Window):
             return
 
         if self.state == STATE_WALKING:
-            if key in INTERACT_KEYS and self.distance_to_gate() <= GATE_RADIUS:
+            task = self.current_task()
+            if key in INTERACT_KEYS and task and self.distance_to_task(task) <= task["radius"]:
                 self.start_conversation()
             return
 
