@@ -91,11 +91,7 @@ class MyGame(arcade.Window):
         pass
 
     def on_draw(self):
-        # Render start compatible with arcade versions
-        try:
-            arcade.start_render()
-        except AttributeError:
-            self.clear()
+        self.clear()
 
         # Background
         rect_filled(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
