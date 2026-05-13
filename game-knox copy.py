@@ -12,7 +12,7 @@ import textwrap
 
 import arcade
 
-SCREEN_WIDTH = 900
+SCREEN_WIDTH = 1120
 SCREEN_HEIGHT = 650
 SCREEN_TITLE = "One Long Day"
 
@@ -108,6 +108,7 @@ class CharacterProfile:
 BUILDINGS = [
     Building("home", "Apartment", "Start / Finish", 55, 220, 410, 575, (118, 122, 132)),
     Building("school", "School", "Homework talk", 570, 835, 420, 580, (137, 98, 84)),
+    Building("primary", "Primary School", "Pickup line", 860, 1060, 420, 580, (155, 111, 86)),
     Building("work", "Corner Store", "After-school shift", 80, 310, 80, 250, (104, 128, 93)),
     Building("gas", "Gas Station", "Friends outside", 600, 820, 70, 250, (128, 118, 74)),
     Building("bus", "Bus Stop", "Long wait", 350, 520, 250, 360, (95, 112, 132)),
@@ -227,6 +228,44 @@ SCENES = [
                 -18,
                 -15,
                 -10,
+                "rash",
+            ),
+        ],
+    ),
+    Scene(
+        "primary",
+        "Primary School: The Pickup Line",
+        "primary",
+        (
+            "Your little brother's primary school calls because he forgot his lunch. "
+            "If you bring it now, you lose time for your own day. If you do not, he waits embarrassed."
+        ),
+        [
+            Choice(
+                "Bring the lunch and head back fast.",
+                "You help your brother and keep the morning from turning into a bigger problem.",
+                -10,
+                2,
+                0,
+                12,
+                "patient",
+            ),
+            Choice(
+                "Ask the office to let him wait a few minutes.",
+                "They agree, but you spend some energy trying to be polite when you are already stressed.",
+                -8,
+                6,
+                0,
+                6,
+                "mixed",
+            ),
+            Choice(
+                "Ignore the call and hope someone else handles it.",
+                "The problem does not disappear. It just moves onto someone else in the family.",
+                6,
+                -6,
+                0,
+                -14,
                 "rash",
             ),
         ],
