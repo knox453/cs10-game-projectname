@@ -111,7 +111,7 @@ BUILDINGS = [
     Building("primary", "Primary School", "Pickup line", 860, 1060, 420, 580, (155, 111, 86)),
     Building("work", "Corner Store", "After-school shift", 80, 310, 80, 250, (104, 128, 93)),
     Building("gas", "Gas Station", "Friends outside", 600, 820, 70, 250, (128, 118, 74)),
-    Building("bus", "Bus Stop", "Long wait", 385, 475, 260, 340, (95, 112, 132)),
+    Building("bus", "Bus Stop", "Long wait", 396, 462, 270, 332, (95, 112, 132)),
     Building("pantry", "Food Pantry", "Aid pickup", 845, 1035, 70, 250, (90, 137, 109)),
     Building("park", "Park", "Quiet break", 255, 470, 430, 560, (82, 145, 97)),
 ]
@@ -737,6 +737,11 @@ class GameView(arcade.View):
         for building in BUILDINGS:
             arcade.draw_lrbt_rectangle_filled(building.left, building.right, building.bottom, building.top, building.color)
             arcade.draw_lrbt_rectangle_filled(building.left, building.right, building.top - 16, building.top, (38, 39, 41))
+            if building.key == "bus":
+                cx, cy = building.center
+                for offset in (-16, 0, 16):
+                    arcade.draw_lrbt_rectangle_filled(cx + offset - 6, cx + offset + 6, cy - 6, cy + 6, (118, 137, 156))
+                    draw_outline_lrbt(cx + offset - 6, cx + offset + 6, cy - 6, cy + 6, COLOR_STICK, 1)
             if building.key == target_location:
                 draw_outline_lrbt(building.left, building.right, building.bottom, building.top, COLOR_TARGET, 4)
             arcade.draw_text(building.name, building.left + 10, building.top - 12, COLOR_TEXT, 12)
