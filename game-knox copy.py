@@ -1003,10 +1003,10 @@ class GameView(arcade.View):
             title = f"One Long Day - {self.selected_profile.name}"
         arcade.draw_text(title, 18, 620, COLOR_TEXT, 18, bold=True)
         arcade.draw_text(f"Day step {self.scene_index + 1} of {len(SCENES)}", 18, 604, COLOR_MUTED, 10)
-        self.draw_meter("Morality", self.patience, 180, COLOR_WARN)
-        self.draw_meter("Stability", self.stability, 365, COLOR_GOOD)
-        self.draw_meter("Grades", self.grades, 550, (104, 156, 212))
-        self.draw_meter("Family", self.family, 735, (207, 134, 181))
+        self.draw_meter("Morality", self.patience, 270, COLOR_WARN)
+        self.draw_meter("Stability", self.stability, 455, COLOR_GOOD)
+        self.draw_meter("Grades", self.grades, 640, (104, 156, 212))
+        self.draw_meter("Family", self.family, 825, (207, 134, 181))
 
     def draw_meter(self, label: str, value: int, x: int, color: tuple[int, int, int]) -> None:
         value = max(0, min(100, value))
