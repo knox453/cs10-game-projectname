@@ -1171,7 +1171,7 @@ class GameView(arcade.View):
     def effect_text(self, choice: Choice) -> str:
         signs = []
         for label, value in [
-            ("morality", choice.patience),
+            ("patience", choice.patience),
             ("stability", choice.stability),
             ("grades", choice.grades),
             ("family", choice.family),
@@ -1208,7 +1208,7 @@ class GameView(arcade.View):
         self.awaiting_continue = False
         average = (self.stability + self.grades + self.family + self.patience) / 4
         weakest = min(
-            [("morality", self.patience), ("stability", self.stability), ("grades", self.grades), ("family trust", self.family)],
+            [("patience", self.patience), ("stability", self.stability), ("grades", self.grades), ("family trust", self.family)],
             key=lambda item: item[1],
         )
         if average >= 58 and self.grades >= 45 and self.family >= 45:
