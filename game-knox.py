@@ -599,8 +599,14 @@ class MyGame(arcade.Window):
             anchor_x="center",
         )
 
+<<<<<<< HEAD
     def distance_to_gate(self):
         return ((self.player_x - GATE_X) ** 2 + (self.player_y - GATE_Y) ** 2) ** 0.5
+=======
+            # NPC Name and Text
+            arcade.draw_text(f"{self.current_npc}:", 4f0, 200, arcade.color.DARK_BLUE_GRAY, 16, bold=True)
+            arcade.draw_text(self.dialogue_text, 40, 175, arcade.color.BLACK, 14)
+>>>>>>> 756d25abb5c3177008887c82124cb146a6c0dcc2
 
     def distance_to_task(self, task):
         x, y = task["location"]

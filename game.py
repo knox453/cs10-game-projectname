@@ -74,9 +74,29 @@ class Scene:
     choices: list[Choice]
 
 
+@dataclass
+class Character:
+    """A selectable player look."""
+
+    name: str
+    shirt: tuple[int, int, int]
+    pants: tuple[int, int, int]
+    backpack: tuple[int, int, int]
+    description: str
+
+
+CHARACTERS = [
+    Character("Miles", (82, 178, 154), (37, 67, 86), (222, 170, 82), "Balanced and observant"),
+    Character("Knox", (201, 91, 83), (54, 63, 92), (84, 146, 171), "Bold and direct"),
+    Character("Drew", (118, 112, 184), (68, 82, 69), (207, 143, 93), "Quiet and careful"),
+]
+
+
 BUILDINGS = [
     Building("home", "Apartment", "Start / Finish", 55, 220, 410, 575, (118, 122, 132)),
     Building("school", "School", "Homework talk", 570, 835, 420, 580, (137, 98, 84)),
+    Building("bus", "Bus Stop", "Get across town", 342, 500, 430, 555, (88, 111, 130)),
+    Building("pantry", "Food Pantry", "Pick up groceries", 330, 510, 70, 225, (126, 91, 118)),
     Building("work", "Corner Store", "After-school shift", 80, 310, 80, 250, (104, 128, 93)),
     Building("gas", "Gas Station", "Friends outside", 600, 820, 70, 250, (128, 118, 74)),
 ]
@@ -161,6 +181,44 @@ SCENES = [
         ],
     ),
     Scene(
+        "bus",
+        "Bus Stop: Missing The Transfer",
+        "bus",
+        (
+            "After school, the bus is late and your next transfer leaves in four minutes. "
+            "If you miss it, you will be late to work. If you walk, you save the fare but lose time and energy."
+        ),
+        [
+            Choice(
+                "Ask the driver to radio the transfer bus.",
+                "The driver helps, but asking politely while everyone watches takes more patience than you expected.",
+                -13,
+                5,
+                0,
+                0,
+                "patient",
+            ),
+            Choice(
+                "Walk fast and hope your manager understands.",
+                "You save the fare and keep moving, but you arrive tired and a little late.",
+                -7,
+                -4,
+                0,
+                0,
+                "mixed",
+            ),
+            Choice(
+                "Kick the bench and yell about the bus.",
+                "People look away. The anger gets out, but work starts with another problem attached to your name.",
+                11,
+                -14,
+                0,
+                -2,
+                "rash",
+            ),
+        ],
+    ),
+    Scene(
         "work",
         "Work: Extra Shift",
         "work",
@@ -194,6 +252,44 @@ SCENES = [
                 -18,
                 3,
                 0,
+                "rash",
+            ),
+        ],
+    ),
+    Scene(
+        "pantry",
+        "Food Pantry: The Line",
+        "pantry",
+        (
+            "Your mom texts that the fridge is almost empty, so you stop at the food pantry. "
+            "The line is long, the volunteers are rushed, and homework time is disappearing."
+        ),
+        [
+            Choice(
+                "Wait calmly and thank the volunteer.",
+                "You bring food home and keep the peace, but the wait drains what was left of your evening.",
+                -15,
+                10,
+                -6,
+                8,
+                "patient",
+            ),
+            Choice(
+                "Take the smallest bag so you can leave faster.",
+                "You save time for schoolwork, but dinner is thin and your mom has to stretch it.",
+                -8,
+                -4,
+                5,
+                -3,
+                "mixed",
+            ),
+            Choice(
+                "Argue when they run out of the food your family needed.",
+                "The volunteer asks you to step outside. You leave with less food and more frustration.",
+                12,
+                -16,
+                -4,
+                -10,
                 "rash",
             ),
         ],
@@ -296,13 +392,25 @@ class GameView(arcade.View):
         self.stability = 50
         self.grades = 50
         self.family = 50
+        self.character_select = True
+        self.selected_character = 0
         self.choice_buttons: list[tuple[int, int, int, int, int]] = []
+        self.character_buttons: list[tuple[int, int, int, int, int]] = []
         self.restart_button = (350, 550, 44, 92)
 
     def on_show_view(self) -> None:
         arcade.set_background_color(self.background_color)
 
     def on_key_press(self, key: int, modifiers: int) -> None:
+        if self.character_select:
+            if key in {arcade.key.KEY_1, arcade.key.NUM_1}:
+                self.select_character(0)
+            elif key in {arcade.key.KEY_2, arcade.key.NUM_2}:
+                self.select_character(1)
+            elif key in {arcade.key.KEY_3, arcade.key.NUM_3}:
+                self.select_character(2)
+            return
+
         if key == arcade.key.R and self.game_over:
             self.setup()
             return
@@ -317,6 +425,13 @@ class GameView(arcade.View):
         self.keys_pressed.discard(key)
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> None:
+        if self.character_select:
+            for index, left, right, bottom, top in self.character_buttons:
+                if left <= x <= right and bottom <= y <= top:
+                    self.select_character(index)
+                    return
+            return
+
         if self.game_over:
             left, right, bottom, top = self.restart_button
             if left <= x <= right and bottom <= y <= top:
@@ -336,7 +451,7 @@ class GameView(arcade.View):
                 return
 
     def on_update(self, delta_time: float) -> None:
-        if self.current_scene or self.game_over:
+        if self.character_select or self.current_scene or self.game_over:
             return
 
         dx = 0
@@ -367,12 +482,19 @@ class GameView(arcade.View):
         self.stability = 50
         self.grades = 50
         self.family = 50
+        self.character_select = True
+
+    def select_character(self, index: int) -> None:
+        self.selected_character = index
+        self.character_select = False
 
     def on_draw(self) -> None:
         self.clear()
         self.draw_world()
         self.draw_hud()
-        if self.game_over:
+        if self.character_select:
+            self.draw_character_select()
+        elif self.game_over:
             self.draw_ending()
         elif self.current_scene:
             self.draw_scene()
@@ -396,8 +518,19 @@ class GameView(arcade.View):
             arcade.draw_text(building.name, building.left + 10, building.top - 12, COLOR_TEXT, 12)
             arcade.draw_text(building.prompt, building.left + 10, building.bottom + 12, (232, 225, 176), 10)
 
-        arcade.draw_circle_filled(self.player_x, self.player_y, 15, COLOR_PLAYER)
-        arcade.draw_circle_filled(self.player_x + 5, self.player_y + 6, 3, (20, 50, 45))
+        self.draw_player_sprite(self.player_x, self.player_y, CHARACTERS[self.selected_character], 1.0)
+
+    def draw_player_sprite(self, x: float, y: float, character: Character, scale: float) -> None:
+        backpack_w = 8 * scale
+        body_w = 18 * scale
+        body_h = 24 * scale
+        head_r = 8 * scale
+        arcade.draw_lrbt_rectangle_filled(x - body_w / 2 - backpack_w, x - body_w / 2, y - 12 * scale, y + 11 * scale, character.backpack)
+        arcade.draw_lrbt_rectangle_filled(x - body_w / 2, x + body_w / 2, y - 14 * scale, y + 10 * scale, character.shirt)
+        arcade.draw_lrbt_rectangle_filled(x - body_w / 2, x - 1 * scale, y - 24 * scale, y - 12 * scale, character.pants)
+        arcade.draw_lrbt_rectangle_filled(x + 1 * scale, x + body_w / 2, y - 24 * scale, y - 12 * scale, character.pants)
+        arcade.draw_circle_filled(x, y + 21 * scale, head_r, (194, 139, 96))
+        arcade.draw_circle_filled(x + 3 * scale, y + 23 * scale, 1.7 * scale, (30, 28, 24))
 
     def draw_hud(self) -> None:
         arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 600, 650, (18, 19, 21, 245))
@@ -413,6 +546,39 @@ class GameView(arcade.View):
         arcade.draw_lrbt_rectangle_filled(x, x + 130, 611, 623, (68, 69, 72))
         arcade.draw_lrbt_rectangle_filled(x, x + 1.3 * value, 611, 623, color)
         arcade.draw_text(str(value), x + 138, 609, COLOR_TEXT, 11)
+
+    def draw_character_select(self) -> None:
+        self.draw_panel(74, 826, 92, 558)
+        arcade.draw_text("Choose Your Character", SCREEN_WIDTH / 2, 510, COLOR_TEXT, 28, anchor_x="center", bold=True)
+        arcade.draw_text(
+            "Pick one sprite to play through the day. The story is the same, but the character you choose appears on the map.",
+            SCREEN_WIDTH / 2,
+            468,
+            COLOR_MUTED,
+            13,
+            width=650,
+            align="center",
+            anchor_x="center",
+            multiline=True,
+        )
+
+        self.character_buttons.clear()
+        card_width = 200
+        card_height = 240
+        gap = 28
+        start_x = (SCREEN_WIDTH - (card_width * 3 + gap * 2)) / 2
+        for index, character in enumerate(CHARACTERS):
+            left = int(start_x + index * (card_width + gap))
+            right = left + card_width
+            bottom = 170
+            top = bottom + card_height
+            arcade.draw_lrbt_rectangle_filled(left, right, bottom, top, (50, 52, 56))
+            arcade.draw_lrbt_rectangle_filled(left, right, top - 5, top, character.shirt)
+            self.draw_player_sprite((left + right) / 2, bottom + 128, character, 2.0)
+            arcade.draw_text(character.name, (left + right) / 2, bottom + 58, COLOR_TEXT, 20, anchor_x="center", bold=True)
+            arcade.draw_text(character.description, (left + right) / 2, bottom + 35, COLOR_MUTED, 11, anchor_x="center")
+            arcade.draw_text(f"Press {index + 1}", (left + right) / 2, bottom + 13, (232, 225, 176), 12, anchor_x="center")
+            self.character_buttons.append((index, left, right, bottom, top))
 
     def draw_scene(self) -> None:
         assert self.current_scene is not None
