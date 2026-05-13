@@ -17,6 +17,15 @@ SCREEN_HEIGHT = 650
 SCREEN_TITLE = "One Long Day"
 
 PLAYER_SPEED = 4
+START_PLAYER_X = 145
+START_PLAYER_Y = 390
+
+WALKABLE_ZONES = [
+    (0, SCREEN_WIDTH, 360, 410),
+    (0, SCREEN_WIDTH, 285, 365),
+    (0, SCREEN_WIDTH, 220, 285),
+    (410, 490, 0, SCREEN_HEIGHT),
+]
 
 COLOR_BG = (42, 45, 48)
 COLOR_ROAD = (64, 66, 68)
@@ -471,8 +480,8 @@ class GameView(arcade.View):
         self.background_color = COLOR_BG
         self.started = False
         self.selected_profile: CharacterProfile | None = None
-        self.player_x = 145
-        self.player_y = 493
+        self.player_x = START_PLAYER_X
+        self.player_y = START_PLAYER_Y
         self.player_accent = (82, 178, 154)
         self.keys_pressed: set[int] = set()
         self.scene_index = 0
@@ -556,14 +565,19 @@ class GameView(arcade.View):
         if arcade.key.UP in self.keys_pressed or arcade.key.W in self.keys_pressed:
             dy += PLAYER_SPEED
 
-        self.player_x = max(25, min(SCREEN_WIDTH - 25, self.player_x + dx))
-        self.player_y = max(25, min(SCREEN_HEIGHT - 25, self.player_y + dy))
+        next_x = max(25, min(SCREEN_WIDTH - 25, self.player_x + dx))
+        if self.is_walkable(next_x, self.player_y):
+            self.player_x = next_x
+
+        next_y = max(25, min(SCREEN_HEIGHT - 25, self.player_y + dy))
+        if self.is_walkable(self.player_x, next_y):
+            self.player_y = next_y
 
     def setup(self) -> None:
         self.started = False
         self.selected_profile = None
-        self.player_x = 145
-        self.player_y = 493
+        self.player_x = START_PLAYER_X
+        self.player_y = START_PLAYER_Y
         self.player_accent = (82, 178, 154)
         self.keys_pressed.clear()
         self.scene_index = 0
@@ -723,7 +737,9 @@ class GameView(arcade.View):
 
     def draw_world(self) -> None:
         arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT, COLOR_BG)
+        arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 220, 285, COLOR_ROAD)
         arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 285, 365, COLOR_ROAD)
+        arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 360, 410, COLOR_ROAD)
         arcade.draw_lrbt_rectangle_filled(410, 490, 0, SCREEN_HEIGHT, COLOR_ROAD)
         arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 272, 285, COLOR_SIDEWALK)
         arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 365, 378, COLOR_SIDEWALK)
@@ -891,13 +907,19 @@ class GameView(arcade.View):
         arcade.draw_lrbt_rectangle_filled(left, right, top - 3, top, COLOR_PANEL_BORDER)
         arcade.draw_lrbt_rectangle_filled(left, right, bottom, bottom + 3, (80, 82, 78))
 
+    def is_walkable(self, x: float, y: float) -> bool:
+        for left, right, bottom, top in WALKABLE_ZONES:
+            if left <= x <= right and bottom <= y <= top:
+                return True
+        return False
+
     def begin_game(self, profile_index: int) -> None:
         profile = CHARACTER_PROFILES[profile_index]
         self.selected_profile = profile
         self.player_accent = profile.accent
         self.started = True
-        self.player_x = 145
-        self.player_y = 493
+        self.player_x = START_PLAYER_X
+        self.player_y = START_PLAYER_Y
         self.keys_pressed.clear()
         self.scene_index = 0
         self.current_scene = None
