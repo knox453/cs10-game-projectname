@@ -965,7 +965,10 @@ class GameView(arcade.View):
         """Draw a hand-drawn stick figure that matches the reference image."""
 
         x = self.player_x
-        y = self.player_y
+        y = self.player_y + self.jump_offset
+
+        shadow_radius = 14 if self.jumping else 16
+        arcade.draw_circle_filled(x, self.player_y - 18, shadow_radius, (24, 24, 26, 110))
 
         head_y = y + 34
         torso_top = y + 14
@@ -1108,6 +1111,13 @@ class GameView(arcade.View):
             if left <= x <= right and bottom <= y <= top:
                 return True
         return False
+
+    def start_jump(self) -> None:
+        if self.jumping:
+            return
+        self.jumping = True
+        self.jump_time = 0.0
+        self.jump_offset = 0.0
 
     def begin_game(self, profile_index: int) -> None:
         profile = CHARACTER_PROFILES[profile_index]
