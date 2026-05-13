@@ -314,6 +314,17 @@ CHARACTER_PROFILES = [
         4,
         (143, 114, 179),
     ),
+    CharacterProfile(
+        "dreamer",
+        "The Quiet Dreamer",
+        "Stays in their own head, notices everything, and tries to keep hope alive even when the day gets crowded.",
+        "average",
+        1,
+        4,
+        4,
+        5,
+        (104, 147, 189),
+    ),
 ]
 
 
@@ -783,7 +794,7 @@ class GameView(arcade.View):
             anchor_x="center",
         )
 
-        card_lefts = [44, 312, 580]
+        card_lefts = [30, 298, 566, 834]
         self.profile_buttons.clear()
         for index, profile in enumerate(CHARACTER_PROFILES):
             left = card_lefts[index]
