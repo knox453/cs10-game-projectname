@@ -19,6 +19,8 @@ SCREEN_TITLE = "One Long Day"
 PLAYER_SPEED = 4
 START_PLAYER_X = 145
 START_PLAYER_Y = 390
+JUMP_HEIGHT = 18
+JUMP_DURATION = 0.42
 
 WALKABLE_ZONES = [
     (0, SCREEN_WIDTH, 360, 410),
@@ -659,6 +661,9 @@ class GameView(arcade.View):
         self.stability = 50
         self.grades = 50
         self.family = 50
+        self.jump_time = 0.0
+        self.jump_offset = 0.0
+        self.jumping = False
         self.choice_buttons: list[tuple[int, int, int, int, int]] = []
         self.profile_buttons: list[tuple[int, int, int, int, int]] = []
         self.restart_button = (350, 550, 44, 92)
@@ -674,6 +679,8 @@ class GameView(arcade.View):
                 self.begin_game(1)
             elif key in {arcade.key.KEY_3, arcade.key.NUM_3}:
                 self.begin_game(2)
+            elif key in {arcade.key.KEY_4, arcade.key.NUM_4}:
+                self.begin_game(3)
             return
 
         if key == arcade.key.R and self.game_over:
@@ -685,6 +692,9 @@ class GameView(arcade.View):
             self.try_start_nearby_scene()
         if key == arcade.key.SPACE and self.awaiting_continue:
             self.advance_scene()
+            return
+        if key == arcade.key.SPACE and not self.current_scene and not self.game_over and not self.awaiting_continue:
+            self.start_jump()
 
     def on_key_release(self, key: int, modifiers: int) -> None:
         self.keys_pressed.discard(key)
@@ -737,6 +747,15 @@ class GameView(arcade.View):
         next_y = max(25, min(SCREEN_HEIGHT - 25, self.player_y + dy))
         if self.is_walkable(self.player_x, next_y):
             self.player_y = next_y
+
+        if self.jumping:
+            self.jump_time += delta_time
+            progress = min(1.0, self.jump_time / JUMP_DURATION)
+            self.jump_offset = JUMP_HEIGHT * 4 * progress * (1 - progress)
+            if progress >= 1.0:
+                self.jumping = False
+                self.jump_time = 0.0
+                self.jump_offset = 0.0
 
     def setup(self) -> None:
         self.started = False
@@ -1003,10 +1022,10 @@ class GameView(arcade.View):
             title = f"One Long Day - {self.selected_profile.name}"
         arcade.draw_text(title, 18, 620, COLOR_TEXT, 18, bold=True)
         arcade.draw_text(f"Day step {self.scene_index + 1} of {len(SCENES)}", 18, 604, COLOR_MUTED, 10)
-        self.draw_meter("Patience", self.patience, 525, COLOR_WARN)
-        self.draw_meter("Stability", self.stability, 645, COLOR_GOOD)
-        self.draw_meter("Grades", self.grades, 765, (104, 156, 212))
-        self.draw_meter("Family", self.family, 885, (207, 134, 181))
+        self.draw_meter("Patience", self.patience, 490, COLOR_WARN)
+        self.draw_meter("Stability", self.stability, 610, COLOR_GOOD)
+        self.draw_meter("Grades", self.grades, 730, (104, 156, 212))
+        self.draw_meter("Family", self.family, 850, (207, 134, 181))
 
     def draw_meter(self, label: str, value: int, x: int, color: tuple[int, int, int]) -> None:
         value = max(0, min(100, value))
@@ -1108,6 +1127,9 @@ class GameView(arcade.View):
         self.stability = max(0, min(100, 50 + profile.stability_bonus))
         self.grades = max(0, min(100, 50 + profile.grades_bonus))
         self.family = max(0, min(100, 50 + profile.family_bonus))
+        self.jump_time = 0.0
+        self.jump_offset = 0.0
+        self.jumping = False
 
     def choose(self, index: int) -> None:
         if not self.current_scene or self.choice_locked(index):
