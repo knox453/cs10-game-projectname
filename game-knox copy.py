@@ -57,6 +57,143 @@ def draw_outline_lrbt(left: float, right: float, bottom: float, top: float, colo
             arcade.draw_rectangle_outline((left + right) / 2, (bottom + top) / 2, right - left, top - bottom, color, border_width)
 
 
+def draw_window_grid(left: float, right: float, bottom: float, top: float, rows: int, cols: int, color: tuple[int, int, int]) -> None:
+    """Draw a loose grid of windows on a facade."""
+
+    if rows <= 0 or cols <= 0:
+        return
+
+    width = right - left
+    height = top - bottom
+    pad_x = width * 0.11
+    pad_y = height * 0.12
+    gap_x = 8
+    gap_y = 8
+    window_w = max(6, (width - pad_x * 2 - (cols - 1) * gap_x) / cols)
+    window_h = max(6, (height - pad_y * 2 - (rows - 1) * gap_y) / rows)
+
+    for row in range(rows):
+        for col in range(cols):
+            x1 = left + pad_x + col * (window_w + gap_x)
+            y1 = bottom + pad_y + row * (window_h + gap_y)
+            arcade.draw_lrbt_rectangle_filled(x1, x1 + window_w, y1, y1 + window_h, color)
+
+
+def draw_tree(x: float, ground_y: float, scale: float = 1.0) -> None:
+    """Draw a simple tree silhouette for the park."""
+
+    trunk_w = 8 * scale
+    trunk_h = 24 * scale
+    canopy_r = 18 * scale
+    trunk_left = x - trunk_w / 2
+    trunk_right = x + trunk_w / 2
+    trunk_bottom = ground_y
+    trunk_top = ground_y + trunk_h
+    arcade.draw_lrbt_rectangle_filled(trunk_left, trunk_right, trunk_bottom, trunk_top, (94, 72, 48))
+    draw_outline_lrbt(trunk_left, trunk_right, trunk_bottom, trunk_top, (62, 46, 30), 1)
+    arcade.draw_circle_filled(x - 8 * scale, ground_y + trunk_h + 10 * scale, canopy_r, (74, 124, 78))
+    arcade.draw_circle_filled(x + 8 * scale, ground_y + trunk_h + 12 * scale, canopy_r, (67, 114, 73))
+    arcade.draw_circle_filled(x, ground_y + trunk_h + 22 * scale, canopy_r + 2 * scale, (90, 146, 88))
+
+
+def draw_building_features(building: Building) -> None:
+    """Add different facades so each building reads as its own place."""
+
+    left, right, bottom, top = building.left, building.right, building.bottom, building.top
+    width = right - left
+    height = top - bottom
+    roof_h = max(10, int(height * 0.12))
+
+    if building.key == "home":
+        arcade.draw_lrbt_rectangle_filled(left + 8, right - 8, top - 44, top - 24, (178, 182, 188))
+        for i in range(3):
+            wx = left + 18 + i * 45
+            arcade.draw_lrbt_rectangle_filled(wx, wx + 22, bottom + 54, bottom + 82, (225, 232, 242))
+            draw_outline_lrbt(wx, wx + 22, bottom + 54, bottom + 82, (58, 58, 61), 1)
+        arcade.draw_lrbt_rectangle_filled(left + width * 0.34, left + width * 0.66, bottom, bottom + 54, (150, 111, 86))
+        draw_outline_lrbt(left + width * 0.34, left + width * 0.66, bottom, bottom + 54, (58, 58, 61), 1)
+        arcade.draw_line(left + width * 0.34, bottom + 54, left + width * 0.50, bottom + 84, (101, 74, 58), 3)
+        arcade.draw_line(left + width * 0.66, bottom + 54, left + width * 0.50, bottom + 84, (101, 74, 58), 3)
+        return
+
+    if building.key == "school":
+        arcade.draw_lrbt_rectangle_filled(left + 12, right - 12, top - 30, top - 8, (171, 128, 98))
+        arcade.draw_lrbt_rectangle_filled(left + 16, right - 16, bottom + 12, bottom + 44, (224, 225, 220))
+        draw_window_grid(left + 16, right - 16, bottom + 54, top - 52, 2, 5, (220, 229, 239))
+        arcade.draw_lrbt_rectangle_filled(left + width * 0.42, left + width * 0.58, bottom, bottom + 70, (126, 86, 70))
+        draw_outline_lrbt(left + width * 0.42, left + width * 0.58, bottom, bottom + 70, (58, 58, 61), 1)
+        arcade.draw_line(left + width * 0.42, bottom + 70, left + width * 0.50, bottom + 98, (96, 67, 54), 3)
+        arcade.draw_line(left + width * 0.58, bottom + 70, left + width * 0.50, bottom + 98, (96, 67, 54), 3)
+        return
+
+    if building.key == "primary":
+        arcade.draw_lrbt_rectangle_filled(left + 10, right - 10, top - 26, top - 6, (182, 136, 105))
+        arcade.draw_lrbt_rectangle_filled(left + 16, right - 16, bottom + 14, bottom + 42, (236, 228, 216))
+        draw_window_grid(left + 18, right - 18, bottom + 56, top - 54, 2, 4, (223, 232, 243))
+        arcade.draw_lrbt_rectangle_filled(left + width * 0.40, left + width * 0.60, bottom, bottom + 66, (142, 97, 73))
+        draw_outline_lrbt(left + width * 0.40, left + width * 0.60, bottom, bottom + 66, (58, 58, 61), 1)
+        arcade.draw_text("P", left + width * 0.5, bottom + 22, (245, 242, 231), 16, anchor_x="center", bold=True)
+        return
+
+    if building.key == "work":
+        arcade.draw_lrbt_rectangle_filled(left + 10, right - 10, top - 24, top - 8, (91, 107, 80))
+        arcade.draw_lrbt_rectangle_filled(left + 16, right - 16, bottom + 18, bottom + 42, (232, 216, 180))
+        for i in range(4):
+            wx = left + 22 + i * 52
+            arcade.draw_lrbt_rectangle_filled(wx, wx + 26, bottom + 92, bottom + 122, (218, 226, 232))
+            draw_outline_lrbt(wx, wx + 26, bottom + 92, bottom + 122, (58, 58, 61), 1)
+        arcade.draw_lrbt_rectangle_filled(left + 18, left + 82, bottom + 36, bottom + 58, (194, 92, 68))
+        arcade.draw_text("Open", left + 28, bottom + 43, COLOR_TEXT, 10, bold=True)
+        return
+
+    if building.key == "gas":
+        arcade.draw_lrbt_rectangle_filled(left + 18, right - 18, top - 36, top - 14, (179, 168, 117))
+        arcade.draw_lrbt_rectangle_filled(left + 24, left + 94, bottom + 56, top - 26, (236, 232, 226))
+        arcade.draw_lrbt_rectangle_filled(right - 88, right - 18, bottom + 56, top - 26, (230, 223, 216))
+        arcade.draw_lrbt_rectangle_filled(left + 34, left + 72, bottom + 18, bottom + 54, (198, 97, 79))
+        arcade.draw_lrbt_rectangle_filled(right - 86, right - 42, bottom + 18, bottom + 54, (94, 129, 171))
+        draw_outline_lrbt(left + 24, left + 94, bottom + 56, top - 26, (58, 58, 61), 1)
+        draw_outline_lrbt(right - 88, right - 18, bottom + 56, top - 26, (58, 58, 61), 1)
+        return
+
+    if building.key == "bus":
+        arcade.draw_lrbt_rectangle_filled(left + 10, right - 10, top - 28, top - 8, (118, 132, 149))
+        arcade.draw_lrbt_rectangle_filled(left + 12, right - 12, bottom + 18, top - 34, (210, 221, 229))
+        draw_window_grid(left + 18, right - 18, bottom + 82, top - 52, 1, 4, (156, 188, 209))
+        arcade.draw_lrbt_rectangle_filled(left + 18, right - 18, bottom + 14, bottom + 22, (67, 69, 72))
+        arcade.draw_lrbt_rectangle_filled(left + width * 0.44, left + width * 0.56, bottom, bottom + 30, (88, 88, 90))
+        return
+
+    if building.key == "pantry":
+        arcade.draw_lrbt_rectangle_filled(left + 12, right - 12, top - 26, top - 8, (131, 163, 126))
+        arcade.draw_lrbt_rectangle_filled(left + 18, right - 18, bottom + 16, bottom + 48, (221, 231, 216))
+        draw_window_grid(left + 18, right - 18, bottom + 58, top - 52, 2, 4, (214, 228, 205))
+        arcade.draw_lrbt_rectangle_filled(left + width * 0.42, left + width * 0.58, bottom, bottom + 64, (104, 146, 101))
+        draw_outline_lrbt(left + width * 0.42, left + width * 0.58, bottom, bottom + 64, (58, 58, 61), 1)
+        arcade.draw_text("Aid", left + width * 0.5, bottom + 24, (245, 242, 231), 12, anchor_x="center", bold=True)
+        return
+
+    if building.key == "park":
+        arcade.draw_lrbt_rectangle_filled(left + 10, right - 10, bottom + 10, top - 14, (102, 157, 93))
+        arcade.draw_lrbt_rectangle_filled(left + 18, right - 18, bottom + 20, top - 24, (117, 175, 108))
+        arcade.draw_lrbt_rectangle_filled(left + width * 0.16, left + width * 0.84, bottom + 22, bottom + 30, (215, 210, 188))
+        for tree_x, tree_scale in [
+            (left + 36, 0.9),
+            (left + 72, 1.0),
+            (left + 110, 0.85),
+            (right - 52, 1.05),
+            (right - 86, 0.95),
+        ]:
+            draw_tree(tree_x, bottom + 14, tree_scale)
+        arcade.draw_lrbt_rectangle_filled(left + width * 0.34, left + width * 0.66, bottom + 40, bottom + 64, (198, 186, 145))
+        draw_outline_lrbt(left + width * 0.34, left + width * 0.66, bottom + 40, bottom + 64, (62, 82, 57), 1)
+        arcade.draw_text("PARK", left + width * 0.5, bottom + 49, (58, 82, 57), 12, anchor_x="center", bold=True)
+        return
+
+    arcade.draw_lrbt_rectangle_filled(left + 12, right - 12, bottom + 16, top - roof_h, (220, 220, 220))
+    draw_window_grid(left + 18, right - 18, bottom + 52, top - 34, 2, 3, (235, 240, 245))
+
+
 @dataclass
 class Building:
     """A place the player can visit."""
@@ -122,7 +259,7 @@ BUILDINGS = [
     Building("gas", "Gas Station", "Friends outside", 600, 820, 70, 250, (128, 118, 74)),
     Building("bus", "Bus Stop", "Long wait", 396, 462, 270, 332, (95, 112, 132)),
     Building("pantry", "Food Pantry", "Aid pickup", 845, 1035, 70, 250, (90, 137, 109)),
-    Building("park", "Park", "Quiet break", 255, 470, 430, 560, (82, 145, 97)),
+    Building("park", "Park", "Quiet break", 245, 395, 430, 560, (82, 145, 97)),
 ]
 
 
@@ -752,7 +889,7 @@ class GameView(arcade.View):
 
         for building in BUILDINGS:
             arcade.draw_lrbt_rectangle_filled(building.left, building.right, building.bottom, building.top, building.color)
-            arcade.draw_lrbt_rectangle_filled(building.left, building.right, building.top - 16, building.top, (38, 39, 41))
+            draw_building_features(building)
             if building.key == "bus":
                 cx, cy = building.center
                 for offset in (-32, -16, 0, 16, 32):
