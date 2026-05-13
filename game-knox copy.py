@@ -1011,9 +1011,12 @@ class GameView(arcade.View):
     def draw_meter(self, label: str, value: int, x: int, color: tuple[int, int, int]) -> None:
         value = max(0, min(100, value))
         arcade.draw_text(label, x, 628, COLOR_MUTED, 10)
-        arcade.draw_lrbt_rectangle_filled(x, x + 104, 611, 623, (68, 69, 72))
-        arcade.draw_lrbt_rectangle_filled(x, x + 1.04 * value, 611, 623, color)
-        arcade.draw_text(str(value), x + 112, 609, COLOR_TEXT, 11)
+        arcade.draw_lrbt_rectangle_filled(x, x + 98, 611, 623, (68, 69, 72))
+        arcade.draw_lrbt_rectangle_filled(x, x + 0.98 * value, 611, 623, color)
+        value_box_left = x + 103
+        value_box_right = x + 140
+        arcade.draw_lrbt_rectangle_filled(value_box_left, value_box_right, 611, 623, (34, 35, 38))
+        arcade.draw_text(str(value), (value_box_left + value_box_right) / 2, 609, COLOR_TEXT, 10, anchor_x="center")
 
     def draw_scene(self) -> None:
         assert self.current_scene is not None
