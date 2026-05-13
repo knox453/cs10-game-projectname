@@ -1003,17 +1003,17 @@ class GameView(arcade.View):
             title = f"One Long Day - {self.selected_profile.name}"
         arcade.draw_text(title, 18, 620, COLOR_TEXT, 18, bold=True)
         arcade.draw_text(f"Day step {self.scene_index + 1} of {len(SCENES)}", 18, 604, COLOR_MUTED, 10)
-        self.draw_meter("Morality", self.patience, 270, COLOR_WARN)
-        self.draw_meter("Stability", self.stability, 455, COLOR_GOOD)
-        self.draw_meter("Grades", self.grades, 640, (104, 156, 212))
-        self.draw_meter("Family", self.family, 825, (207, 134, 181))
+        self.draw_meter("Patience", self.patience, 610, COLOR_WARN)
+        self.draw_meter("Stability", self.stability, 728, COLOR_GOOD)
+        self.draw_meter("Grades", self.grades, 846, (104, 156, 212))
+        self.draw_meter("Family", self.family, 964, (207, 134, 181))
 
     def draw_meter(self, label: str, value: int, x: int, color: tuple[int, int, int]) -> None:
         value = max(0, min(100, value))
         arcade.draw_text(label, x, 628, COLOR_MUTED, 10)
-        arcade.draw_lrbt_rectangle_filled(x, x + 130, 611, 623, (68, 69, 72))
-        arcade.draw_lrbt_rectangle_filled(x, x + 1.3 * value, 611, 623, color)
-        arcade.draw_text(str(value), x + 138, 609, COLOR_TEXT, 11)
+        arcade.draw_lrbt_rectangle_filled(x, x + 104, 611, 623, (68, 69, 72))
+        arcade.draw_lrbt_rectangle_filled(x, x + 1.04 * value, 611, 623, color)
+        arcade.draw_text(str(value), x + 112, 609, COLOR_TEXT, 11)
 
     def draw_scene(self) -> None:
         assert self.current_scene is not None
