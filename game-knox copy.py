@@ -739,7 +739,7 @@ class GameView(arcade.View):
             arcade.draw_lrbt_rectangle_filled(building.left, building.right, building.top - 16, building.top, (38, 39, 41))
             if building.key == "bus":
                 cx, cy = building.center
-                for offset in (-16, 0, 16):
+                for offset in (-32, -16, 0, 16, 32):
                     arcade.draw_lrbt_rectangle_filled(cx + offset - 6, cx + offset + 6, cy - 6, cy + 6, (118, 137, 156))
                     draw_outline_lrbt(cx + offset - 6, cx + offset + 6, cy - 6, cy + 6, COLOR_STICK, 1)
             if building.key == target_location:
