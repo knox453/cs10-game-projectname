@@ -828,7 +828,7 @@ class GameView(arcade.View):
             arcade.draw_text(profile.name, left + 88, top - 38, COLOR_TEXT, 17, bold=True, width=120, multiline=True)
             arcade.draw_text(profile.bio, left + 18, top - 100, COLOR_TEXT, 12, width=200, multiline=True)
             arcade.draw_text(
-                f"1. Morality {profile.patience_bonus:+}  2. Stability {profile.stability_bonus:+}",
+                f"1. Patience {profile.patience_bonus:+}  2. Stability {profile.stability_bonus:+}",
                 left + 18,
                 top - 210,
                 COLOR_MUTED,
@@ -1052,7 +1052,7 @@ class GameView(arcade.View):
             multiline=True,
         )
         arcade.draw_text(
-            "Calm choices spend morality. If morality runs out, only the harshest option stays available.",
+            "Calm choices spend patience. If patience runs out, only the harshest option stays available.",
             108,
             402,
             COLOR_MUTED,
@@ -1069,7 +1069,7 @@ class GameView(arcade.View):
             fill = COLOR_LOCKED if locked else self.choice_color(choice)
             arcade.draw_lrbt_rectangle_filled(left, right, bottom, top, fill)
             arcade.draw_lrbt_rectangle_filled(left, right, top - 4, top, (255, 255, 255, 35))
-            label = choice.label if not locked else "Morality is empty: this choice is unavailable."
+            label = choice.label if not locked else "Patience is empty: this choice is unavailable."
             arcade.draw_text(label, left + 16, bottom + 36, COLOR_TEXT, 12, width=640, multiline=True)
             arcade.draw_text(self.effect_text(choice), left + 16, bottom + 13, (236, 234, 220), 10)
             self.choice_buttons.append((index, left, right, bottom, top))
@@ -1227,7 +1227,7 @@ class GameView(arcade.View):
             {headline}
 
             Final scores:
-            Morality {self.patience} | Stability {self.stability} | Grades {self.grades} | Family {self.family}
+            Patience {self.patience} | Stability {self.stability} | Grades {self.grades} | Family {self.family}
 
             Your lowest area was {weakest[0]}. That does not mean you made one bad choice. It means the same choice can cost more when money, time, rest, and support are all limited.
 
