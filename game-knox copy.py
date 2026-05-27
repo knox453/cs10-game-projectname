@@ -19,8 +19,6 @@ SCREEN_TITLE = "One Long Day"
 PLAYER_SPEED = 4
 START_PLAYER_X = 145
 START_PLAYER_Y = 390
-JUMP_HEIGHT = 18
-JUMP_DURATION = 0.42
 
 WALKABLE_ZONES = [
     (0, SCREEN_WIDTH, 360, 410),
@@ -315,17 +313,6 @@ CHARACTER_PROFILES = [
         -4,
         4,
         (143, 114, 179),
-    ),
-    CharacterProfile(
-        "dreamer",
-        "The Quiet Dreamer",
-        "Stays in their own head, notices everything, and tries to keep hope alive even when the day gets crowded.",
-        "average",
-        1,
-        4,
-        4,
-        5,
-        (104, 147, 189),
     ),
 ]
 
@@ -661,9 +648,6 @@ class GameView(arcade.View):
         self.stability = 50
         self.grades = 50
         self.family = 50
-        self.jump_time = 0.0
-        self.jump_offset = 0.0
-        self.jumping = False
         self.choice_buttons: list[tuple[int, int, int, int, int]] = []
         self.profile_buttons: list[tuple[int, int, int, int, int]] = []
         self.restart_button = (350, 550, 44, 92)
@@ -679,8 +663,6 @@ class GameView(arcade.View):
                 self.begin_game(1)
             elif key in {arcade.key.KEY_3, arcade.key.NUM_3}:
                 self.begin_game(2)
-            elif key in {arcade.key.KEY_4, arcade.key.NUM_4}:
-                self.begin_game(3)
             return
 
         if key == arcade.key.R and self.game_over:
@@ -692,9 +674,6 @@ class GameView(arcade.View):
             self.try_start_nearby_scene()
         if key == arcade.key.SPACE and self.awaiting_continue:
             self.advance_scene()
-            return
-        if key == arcade.key.SPACE and not self.current_scene and not self.game_over and not self.awaiting_continue:
-            self.start_jump()
 
     def on_key_release(self, key: int, modifiers: int) -> None:
         self.keys_pressed.discard(key)
@@ -747,15 +726,6 @@ class GameView(arcade.View):
         next_y = max(25, min(SCREEN_HEIGHT - 25, self.player_y + dy))
         if self.is_walkable(self.player_x, next_y):
             self.player_y = next_y
-
-        if self.jumping:
-            self.jump_time += delta_time
-            progress = min(1.0, self.jump_time / JUMP_DURATION)
-            self.jump_offset = JUMP_HEIGHT * 4 * progress * (1 - progress)
-            if progress >= 1.0:
-                self.jumping = False
-                self.jump_time = 0.0
-                self.jump_offset = 0.0
 
     def setup(self) -> None:
         self.started = False
@@ -813,7 +783,7 @@ class GameView(arcade.View):
             anchor_x="center",
         )
 
-        card_lefts = [30, 298, 566, 834]
+        card_lefts = [44, 312, 580]
         self.profile_buttons.clear()
         for index, profile in enumerate(CHARACTER_PROFILES):
             left = card_lefts[index]
@@ -828,7 +798,7 @@ class GameView(arcade.View):
             arcade.draw_text(profile.name, left + 88, top - 38, COLOR_TEXT, 17, bold=True, width=120, multiline=True)
             arcade.draw_text(profile.bio, left + 18, top - 100, COLOR_TEXT, 12, width=200, multiline=True)
             arcade.draw_text(
-                f"1. Patience {profile.patience_bonus:+}  2. Stability {profile.stability_bonus:+}",
+                f"1. Morality {profile.patience_bonus:+}  2. Stability {profile.stability_bonus:+}",
                 left + 18,
                 top - 210,
                 COLOR_MUTED,
@@ -965,10 +935,7 @@ class GameView(arcade.View):
         """Draw a hand-drawn stick figure that matches the reference image."""
 
         x = self.player_x
-        y = self.player_y + self.jump_offset
-
-        shadow_radius = 14 if self.jumping else 16
-        arcade.draw_circle_filled(x, self.player_y - 18, shadow_radius, (24, 24, 26, 110))
+        y = self.player_y
 
         head_y = y + 34
         torso_top = y + 14
@@ -1025,17 +992,17 @@ class GameView(arcade.View):
             title = f"One Long Day - {self.selected_profile.name}"
         arcade.draw_text(title, 18, 620, COLOR_TEXT, 18, bold=True)
         arcade.draw_text(f"Day step {self.scene_index + 1} of {len(SCENES)}", 18, 604, COLOR_MUTED, 10)
-        self.draw_meter("Patience", self.patience, 465, COLOR_WARN)
-        self.draw_meter("Stability", self.stability, 610, COLOR_GOOD)
-        self.draw_meter("Grades", self.grades, 730, (104, 156, 212))
-        self.draw_meter("Family", self.family, 850, (207, 134, 181))
+        self.draw_meter("Morality", self.patience, 180, COLOR_WARN)
+        self.draw_meter("Stability", self.stability, 365, COLOR_GOOD)
+        self.draw_meter("Grades", self.grades, 550, (104, 156, 212))
+        self.draw_meter("Family", self.family, 735, (207, 134, 181))
 
     def draw_meter(self, label: str, value: int, x: int, color: tuple[int, int, int]) -> None:
         value = max(0, min(100, value))
         arcade.draw_text(label, x, 628, COLOR_MUTED, 10)
-        arcade.draw_lrbt_rectangle_filled(x, x + 94, 611, 623, (68, 69, 72))
-        arcade.draw_lrbt_rectangle_filled(x, x + 0.94 * value, 611, 623, color)
-        arcade.draw_text(str(value), x + 102, 609, COLOR_TEXT, 12)
+        arcade.draw_lrbt_rectangle_filled(x, x + 130, 611, 623, (68, 69, 72))
+        arcade.draw_lrbt_rectangle_filled(x, x + 1.3 * value, 611, 623, color)
+        arcade.draw_text(str(value), x + 138, 609, COLOR_TEXT, 11)
 
     def draw_scene(self) -> None:
         assert self.current_scene is not None
@@ -1052,7 +1019,7 @@ class GameView(arcade.View):
             multiline=True,
         )
         arcade.draw_text(
-            "Calm choices spend patience. If patience runs out, only the harshest option stays available.",
+            "Calm choices spend morality. If morality runs out, only the harshest option stays available.",
             108,
             402,
             COLOR_MUTED,
@@ -1069,7 +1036,7 @@ class GameView(arcade.View):
             fill = COLOR_LOCKED if locked else self.choice_color(choice)
             arcade.draw_lrbt_rectangle_filled(left, right, bottom, top, fill)
             arcade.draw_lrbt_rectangle_filled(left, right, top - 4, top, (255, 255, 255, 35))
-            label = choice.label if not locked else "Patience is empty: this choice is unavailable."
+            label = choice.label if not locked else "Morality is empty: this choice is unavailable."
             arcade.draw_text(label, left + 16, bottom + 36, COLOR_TEXT, 12, width=640, multiline=True)
             arcade.draw_text(self.effect_text(choice), left + 16, bottom + 13, (236, 234, 220), 10)
             self.choice_buttons.append((index, left, right, bottom, top))
@@ -1112,13 +1079,6 @@ class GameView(arcade.View):
                 return True
         return False
 
-    def start_jump(self) -> None:
-        if self.jumping:
-            return
-        self.jumping = True
-        self.jump_time = 0.0
-        self.jump_offset = 0.0
-
     def begin_game(self, profile_index: int) -> None:
         profile = CHARACTER_PROFILES[profile_index]
         self.selected_profile = profile
@@ -1137,9 +1097,6 @@ class GameView(arcade.View):
         self.stability = max(0, min(100, 50 + profile.stability_bonus))
         self.grades = max(0, min(100, 50 + profile.grades_bonus))
         self.family = max(0, min(100, 50 + profile.family_bonus))
-        self.jump_time = 0.0
-        self.jump_offset = 0.0
-        self.jumping = False
 
     def choose(self, index: int) -> None:
         if not self.current_scene or self.choice_locked(index):
@@ -1171,7 +1128,7 @@ class GameView(arcade.View):
     def effect_text(self, choice: Choice) -> str:
         signs = []
         for label, value in [
-            ("patience", choice.patience),
+            ("morality", choice.patience),
             ("stability", choice.stability),
             ("grades", choice.grades),
             ("family", choice.family),
@@ -1208,7 +1165,7 @@ class GameView(arcade.View):
         self.awaiting_continue = False
         average = (self.stability + self.grades + self.family + self.patience) / 4
         weakest = min(
-            [("patience", self.patience), ("stability", self.stability), ("grades", self.grades), ("family trust", self.family)],
+            [("morality", self.patience), ("stability", self.stability), ("grades", self.grades), ("family trust", self.family)],
             key=lambda item: item[1],
         )
         if average >= 58 and self.grades >= 45 and self.family >= 45:
@@ -1227,7 +1184,7 @@ class GameView(arcade.View):
             {headline}
 
             Final scores:
-            Patience {self.patience} | Stability {self.stability} | Grades {self.grades} | Family {self.family}
+            Morality {self.patience} | Stability {self.stability} | Grades {self.grades} | Family {self.family}
 
             Your lowest area was {weakest[0]}. That does not mean you made one bad choice. It means the same choice can cost more when money, time, rest, and support are all limited.
 
