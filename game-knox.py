@@ -13,7 +13,7 @@ STATE_GAME_OVER = 2
 class MyGame(arcade.Window):
     def __init__(self):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-
+`
         # Game Stats
         self.patience = 10
         self.max_patience = 10
@@ -55,7 +55,7 @@ class MyGame(arcade.Window):
             arcade.draw_rectangle_outline(400, 150, 760, 150, arcade.color.BLACK, 3)
 
             # NPC Name and Text
-            arcade.draw_text(f"{self.current_npc}:", 40, 200, arcade.color.DARK_BLUE_GRAY, 16, bold=True)
+            arcade.draw_text(f"{self.current_npc}:", 4f0, 200, arcade.color.DARK_BLUE_GRAY, 16, bold=True)
             arcade.draw_text(self.dialogue_text, 40, 175, arcade.color.BLACK, 14)
 
             # Draw Options
