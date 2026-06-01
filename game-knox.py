@@ -13,7 +13,7 @@ STATE_GAME_OVER = 2
 class MyGame(arcade.Window):
     def __init__(self):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-b
+
         # Game Stats
         self.patience = 10
         self.max_patience = 10
