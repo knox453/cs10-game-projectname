@@ -8,7 +8,8 @@ Mac:
 [Download OneLongDay-mac.zip](https://github.com/knox453/cs10-game-projectname/releases/latest/download/OneLongDay-mac.zip)
 
 Windows:
-C:\Users\devnt\cs10-game-projectname\dist
+https://drive.google.com/file/d/1Hyn6dzLrHVl7KXiNF4WZxL2VFNlUHy3H/view
+
 
 ## How to Play
 
