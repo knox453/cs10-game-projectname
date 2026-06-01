@@ -1,0 +1,3 @@
+([('OneLongDay',
+   '/Users/milesfoxman/cs10-game-projectname/dist/OneLongDay',
+   'EXECUTABLE')],)
