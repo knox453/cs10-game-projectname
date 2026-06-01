@@ -1,0 +1,83 @@
+name: Build Game Downloads
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-mac:
+    name: Build Mac
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt pyinstaller
+
+      - name: Build app
+        run: python -m PyInstaller --onedir --windowed --name OneLongDay game.py
+
+      - name: Package app
+        run: ditto -c -k --sequesterRsrc --keepParent dist/OneLongDay.app OneLongDay-mac.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OneLongDay-mac
+          path: OneLongDay-mac.zip
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: py -m pip install -r requirements.txt pyinstaller
+
+      - name: Build exe
+        run: py -m PyInstaller --onefile --windowed --name OneLongDay game.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OneLongDay-windows
+          path: dist/OneLongDay.exe
+
+  publish:
+    name: Publish Downloads
+    needs:
+      - build-mac
+      - build-windows
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: downloads
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG_NAME="latest-downloads"
+          fi
+          gh release delete "$TAG_NAME" --yes || true
+          gh release create "$TAG_NAME" \
+            downloads/OneLongDay-mac/OneLongDay-mac.zip \
+            downloads/OneLongDay-windows/OneLongDay.exe#OneLongDay-windows.exe \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "One Long Day Downloads" \
+            --notes "Standalone downloads for Mac and Windows."
